@@ -219,57 +219,49 @@
     }
     
     body.mobile-view #map-title-bar {
-      height: 55px;
-      font-size: 0.95rem;
-      padding: 0 12px;
-      gap: 8px;
-      font-weight: 500;
+      height: 50px;
+      font-size: 1rem;
+      padding: 0 10px;
     }
     
     body.mobile-view #logo-img {
-      max-height: 32px;
-      padding: 4px;
-      border-width: 1.5px;
+      max-height: 30px;
+      padding: 3px;
     }
     
     body.mobile-view #map {
-      height: calc(100vh - 55px);
-      margin-top: 55px;
+      height: calc(100vh - 50px);
+      margin-top: 50px;
     }
     
     body.mobile-view .opacity-control,
     body.mobile-view .info.legend {
-      font-size: 14px;
-      min-width: 160px;
-      max-width: 92vw;
-      padding: 12px;
-      border-radius: 12px;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-      border: 1px solid rgba(255,255,255,0.3);
+      font-size: 13px;
+      min-width: 140px;
+      max-width: 90vw;
+      padding: 10px;
+      border-radius: 10px;
     }
     
     body.mobile-view .leaflet-control-layers {
-      font-size: 14px;
-      max-width: 92vw;
-      border-radius: 12px;
-      padding: 8px;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+      font-size: 13px;
+      max-width: 90vw;
+      border-radius: 10px;
+      padding: 6px;
     }
     
     body.mobile-view .leaflet-control-layers-toggle {
-      width: 44px;
-      height: 44px;
-      border-radius: 12px;
-      background-size: 20px;
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
     }
     
     body.mobile-view .leaflet-control-zoom a {
-      width: 44px;
-      height: 44px;
-      border-radius: 10px;
-      font-size: 18px;
-      font-weight: 600;
-      line-height: 44px;
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      font-size: 16px;
+      line-height: 40px;
     }
     
     body.mobile-view #view-toggle {
@@ -279,7 +271,6 @@
       height: 50px;
       font-size: 22px;
       border-radius: 12px;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.2);
     }
     
     body.mobile-view .info.legend h4 {
@@ -1704,7 +1695,7 @@
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet-geometryutil@0.10.0/src/leaflet.geometryutil.js"></script>
   <script>
-    // Toggle simples Desktop/Mobile
+    // Toggle simples Desktop/Mobile - VERSÃO FUNCIONAL
     document.addEventListener('DOMContentLoaded', function() {
       console.log('DOM carregado, inicializando toggle...');
       
@@ -1716,7 +1707,7 @@
         console.log('Elementos de toggle encontrados');
         
         toggleBtn.onclick = function() {
-          console.log('Toggle clicado');
+          console.log('Toggle clicado!');
           isMobileView = !isMobileView;
           
           if (isMobileView) {
@@ -1748,7 +1739,7 @@
         
         console.log('Toggle inicializado com sucesso');
       } else {
-        console.log('Elementos de toggle não encontrados');
+        console.log('ERRO: Elementos de toggle não encontrados');
       }
     });
 
