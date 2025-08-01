@@ -1808,61 +1808,69 @@
     var legendElements = document.querySelectorAll('.info.legend');
     
     function toggleLegend() {
-      var isVisible = legendElements[0].classList.contains('show');
-      
-      legendElements.forEach(function(legend) {
+      if (legendElements.length > 0) {
+        var isVisible = legendElements[0].classList.contains('show');
+        
+        legendElements.forEach(function(legend) {
+          if (isVisible) {
+            legend.classList.remove('show');
+          } else {
+            legend.classList.add('show');
+          }
+        });
+        
         if (isVisible) {
-          legend.classList.remove('show');
+          legendToggle.classList.remove('active');
+          legendToggle.title = 'Mostrar Legendas';
         } else {
-          legend.classList.add('show');
+          legendToggle.classList.add('active');
+          legendToggle.title = 'Ocultar Legendas';
         }
-      });
-      
-      if (isVisible) {
-        legendToggle.classList.remove('active');
-        legendToggle.title = 'Mostrar Legendas';
-      } else {
-        legendToggle.classList.add('active');
-        legendToggle.title = 'Ocultar Legendas';
       }
     }
     
-    legendToggle.onclick = toggleLegend;
+    if (legendToggle) {
+      legendToggle.onclick = toggleLegend;
+    }
     
     // ===== TOGGLE DE CONTROLES DE OPACIDADE MOBILE =====
     var opacityToggle = document.getElementById('opacity-toggle');
     var opacityControls = document.querySelectorAll('.opacity-control');
     
     function toggleOpacityControls() {
-      var isVisible = opacityControls[0].classList.contains('show');
-      
-      opacityControls.forEach(function(control) {
+      if (opacityControls.length > 0) {
+        var isVisible = opacityControls[0].classList.contains('show');
+        
+        opacityControls.forEach(function(control) {
+          if (isVisible) {
+            control.classList.remove('show');
+          } else {
+            control.classList.add('show');
+          }
+        });
+        
         if (isVisible) {
-          control.classList.remove('show');
+          opacityToggle.classList.remove('active');
+          opacityToggle.title = 'Mostrar Controles';
         } else {
-          control.classList.add('show');
+          opacityToggle.classList.add('active');
+          opacityToggle.title = 'Ocultar Controles';
         }
-      });
-      
-      if (isVisible) {
-        opacityToggle.classList.remove('active');
-        opacityToggle.title = 'Mostrar Controles';
-      } else {
-        opacityToggle.classList.add('active');
-        opacityToggle.title = 'Ocultar Controles';
       }
     }
     
-    opacityToggle.onclick = toggleOpacityControls;
+    if (opacityToggle) {
+      opacityToggle.onclick = toggleOpacityControls;
+    }
     
     // Mostrar/ocultar botões baseado no modo
     function updateMobileToggles() {
       if (isMobileView) {
-        legendToggle.style.display = 'flex';
-        opacityToggle.style.display = 'flex';
+        if (legendToggle) legendToggle.style.display = 'flex';
+        if (opacityToggle) opacityToggle.style.display = 'flex';
       } else {
-        legendToggle.style.display = 'none';
-        opacityToggle.style.display = 'none';
+        if (legendToggle) legendToggle.style.display = 'none';
+        if (opacityToggle) opacityToggle.style.display = 'none';
         // Garantir que legendas e controles estejam visíveis no desktop
         legendElements.forEach(function(legend) {
           legend.classList.remove('show');
