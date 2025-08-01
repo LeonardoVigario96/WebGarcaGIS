@@ -1760,128 +1760,135 @@
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet-geometryutil@0.10.0/src/leaflet.geometryutil.js"></script>
   <script>
-    // Alternância de visualização Desktop/Mobile
-    var isMobileView = false;
-    var iconDesktop = '💻';
-    var iconMobile = '📱';
-    var toggleBtn = document.getElementById('view-toggle');
-    var toggleIcon = document.getElementById('view-toggle-icon');
-    
-    function setViewMode(mobile) {
-      isMobileView = mobile;
-      if (mobile) {
-        document.body.classList.add('mobile-view');
-        toggleIcon.textContent = iconMobile;
-        toggleIcon.title = 'Alternar para visualização Desktop';
-        console.log('Modo Mobile ativado');
-      } else {
-        document.body.classList.remove('mobile-view');
-        toggleIcon.textContent = iconDesktop;
-        toggleIcon.title = 'Alternar para visualização Mobile';
-        console.log('Modo Desktop ativado');
+    // Aguardar o DOM estar pronto
+    document.addEventListener('DOMContentLoaded', function() {
+      // Alternância de visualização Desktop/Mobile
+      var isMobileView = false;
+      var iconDesktop = '💻';
+      var iconMobile = '📱';
+      var toggleBtn = document.getElementById('view-toggle');
+      var toggleIcon = document.getElementById('view-toggle-icon');
+      
+      function setViewMode(mobile) {
+        isMobileView = mobile;
+        if (mobile) {
+          document.body.classList.add('mobile-view');
+          if (toggleIcon) toggleIcon.textContent = iconMobile;
+          if (toggleIcon) toggleIcon.title = 'Alternar para visualização Desktop';
+          console.log('Modo Mobile ativado');
+        } else {
+          document.body.classList.remove('mobile-view');
+          if (toggleIcon) toggleIcon.textContent = iconDesktop;
+          if (toggleIcon) toggleIcon.title = 'Alternar para visualização Mobile';
+          console.log('Modo Desktop ativado');
+        }
+        
+        // Atualiza visibilidade dos botões mobile
+        updateMobileToggles();
+        
+        // Força redimensionamento do mapa
+        setTimeout(function() {
+          if (window.map) map.invalidateSize();
+        }, 100);
       }
       
-      // Atualiza visibilidade dos botões mobile
-      updateMobileToggles();
+      if (toggleBtn) {
+        toggleBtn.onclick = function() {
+          setViewMode(!isMobileView);
+          
+          // Feedback visual
+          toggleBtn.style.transform = 'scale(0.95)';
+          setTimeout(function() {
+            toggleBtn.style.transform = '';
+          }, 150);
+        };
+      }
       
-      // Força redimensionamento do mapa
-      setTimeout(function() {
-        map.invalidateSize();
-      }, 100);
-    }
-    
-    toggleBtn.onclick = function() {
-      setViewMode(!isMobileView);
+      // ===== TOGGLE DE LEGENDAS MOBILE =====
+      var legendToggle = document.getElementById('legend-toggle');
+      var legendElements = document.querySelectorAll('.info.legend');
       
-      // Feedback visual
-      toggleBtn.style.transform = 'scale(0.95)';
-      setTimeout(function() {
-        toggleBtn.style.transform = '';
-      }, 150);
-    };
-    
-    // Inicializa como desktop
-    setViewMode(false);
-    
-    // ===== TOGGLE DE LEGENDAS MOBILE =====
-    var legendToggle = document.getElementById('legend-toggle');
-    var legendElements = document.querySelectorAll('.info.legend');
-    
-    function toggleLegend() {
-      if (legendElements.length > 0) {
-        var isVisible = legendElements[0].classList.contains('show');
-        
-        legendElements.forEach(function(legend) {
+      function toggleLegend() {
+        if (legendElements.length > 0) {
+          var isVisible = legendElements[0].classList.contains('show');
+          
+          legendElements.forEach(function(legend) {
+            if (isVisible) {
+              legend.classList.remove('show');
+            } else {
+              legend.classList.add('show');
+            }
+          });
+          
           if (isVisible) {
+            if (legendToggle) legendToggle.classList.remove('active');
+            if (legendToggle) legendToggle.title = 'Mostrar Legendas';
+          } else {
+            if (legendToggle) legendToggle.classList.add('active');
+            if (legendToggle) legendToggle.title = 'Ocultar Legendas';
+          }
+        }
+      }
+      
+      if (legendToggle) {
+        legendToggle.onclick = toggleLegend;
+      }
+      
+      // ===== TOGGLE DE CONTROLES DE OPACIDADE MOBILE =====
+      var opacityToggle = document.getElementById('opacity-toggle');
+      var opacityControls = document.querySelectorAll('.opacity-control');
+      
+      function toggleOpacityControls() {
+        if (opacityControls.length > 0) {
+          var isVisible = opacityControls[0].classList.contains('show');
+          
+          opacityControls.forEach(function(control) {
+            if (isVisible) {
+              control.classList.remove('show');
+            } else {
+              control.classList.add('show');
+            }
+          });
+          
+          if (isVisible) {
+            if (opacityToggle) opacityToggle.classList.remove('active');
+            if (opacityToggle) opacityToggle.title = 'Mostrar Controles';
+          } else {
+            if (opacityToggle) opacityToggle.classList.add('active');
+            if (opacityToggle) opacityToggle.title = 'Ocultar Controles';
+          }
+        }
+      }
+      
+      if (opacityToggle) {
+        opacityToggle.onclick = toggleOpacityControls;
+      }
+      
+      // Mostrar/ocultar botões baseado no modo
+      function updateMobileToggles() {
+        if (isMobileView) {
+          if (legendToggle) legendToggle.style.display = 'flex';
+          if (opacityToggle) opacityToggle.style.display = 'flex';
+        } else {
+          if (legendToggle) legendToggle.style.display = 'none';
+          if (opacityToggle) opacityToggle.style.display = 'none';
+          // Garantir que legendas e controles estejam visíveis no desktop
+          legendElements.forEach(function(legend) {
             legend.classList.remove('show');
-          } else {
-            legend.classList.add('show');
-          }
-        });
-        
-        if (isVisible) {
-          legendToggle.classList.remove('active');
-          legendToggle.title = 'Mostrar Legendas';
-        } else {
-          legendToggle.classList.add('active');
-          legendToggle.title = 'Ocultar Legendas';
-        }
-      }
-    }
-    
-    if (legendToggle) {
-      legendToggle.onclick = toggleLegend;
-    }
-    
-    // ===== TOGGLE DE CONTROLES DE OPACIDADE MOBILE =====
-    var opacityToggle = document.getElementById('opacity-toggle');
-    var opacityControls = document.querySelectorAll('.opacity-control');
-    
-    function toggleOpacityControls() {
-      if (opacityControls.length > 0) {
-        var isVisible = opacityControls[0].classList.contains('show');
-        
-        opacityControls.forEach(function(control) {
-          if (isVisible) {
+            legend.style.display = 'block';
+          });
+          opacityControls.forEach(function(control) {
             control.classList.remove('show');
-          } else {
-            control.classList.add('show');
-          }
-        });
-        
-        if (isVisible) {
-          opacityToggle.classList.remove('active');
-          opacityToggle.title = 'Mostrar Controles';
-        } else {
-          opacityToggle.classList.add('active');
-          opacityToggle.title = 'Ocultar Controles';
+            control.style.display = 'block';
+          });
         }
       }
-    }
-    
-    if (opacityToggle) {
-      opacityToggle.onclick = toggleOpacityControls;
-    }
-    
-    // Mostrar/ocultar botões baseado no modo
-    function updateMobileToggles() {
-      if (isMobileView) {
-        if (legendToggle) legendToggle.style.display = 'flex';
-        if (opacityToggle) opacityToggle.style.display = 'flex';
-      } else {
-        if (legendToggle) legendToggle.style.display = 'none';
-        if (opacityToggle) opacityToggle.style.display = 'none';
-        // Garantir que legendas e controles estejam visíveis no desktop
-        legendElements.forEach(function(legend) {
-          legend.classList.remove('show');
-          legend.style.display = 'block';
-        });
-        opacityControls.forEach(function(control) {
-          control.classList.remove('show');
-          control.style.display = 'block';
-        });
-      }
-    }
+      
+      // Inicializa como desktop após o mapa estar pronto
+      setTimeout(function() {
+        setViewMode(false);
+      }, 1000);
+    });
 
     // Inicializa o mapa
     var map = L.map('map', {
