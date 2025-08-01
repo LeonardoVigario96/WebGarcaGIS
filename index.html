@@ -214,7 +214,24 @@
       margin-top: 55px;
     }
     
-    body.mobile-view .opacity-control,
+    body.mobile-view .opacity-control {
+      font-size: 14px;
+      min-width: 160px;
+      max-width: 92vw;
+      padding: 12px;
+      border-radius: 12px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      position: fixed;
+      top: 70px;
+      right: 15px;
+      z-index: 1000;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      max-height: 50vh;
+      overflow-y: auto;
+    }
+    
     body.mobile-view .info.legend {
       font-size: 14px;
       min-width: 160px;
@@ -234,6 +251,82 @@
       right: 15px !important;
       max-height: 60vh;
       overflow-y: auto;
+      display: none; /* Oculta por padrão no mobile */
+    }
+    
+    /* Botão para mostrar/ocultar legendas no mobile */
+    body.mobile-view .legend-toggle {
+      position: absolute;
+      bottom: 80px;
+      left: 15px;
+      z-index: 1001;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      font-size: 20px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    body.mobile-view .legend-toggle:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    }
+    
+    body.mobile-view .legend-toggle.active {
+      background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+    }
+    
+    /* Mostrar legendas quando ativo */
+    body.mobile-view .info.legend.show {
+      display: block !important;
+    }
+    
+    /* Botão para mostrar/ocultar controles de opacidade no mobile */
+    body.mobile-view .opacity-toggle {
+      position: absolute;
+      bottom: 80px;
+      right: 15px;
+      z-index: 1001;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      font-size: 20px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    body.mobile-view .opacity-toggle:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    }
+    
+    body.mobile-view .opacity-toggle.active {
+      background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+    }
+    
+    /* Ocultar controles de opacidade por padrão no mobile */
+    body.mobile-view .opacity-control {
+      display: none;
+    }
+    
+    /* Mostrar controles quando ativo */
+    body.mobile-view .opacity-control.show {
+      display: block !important;
     }
     
     body.mobile-view .info.legend h4 {
@@ -1650,6 +1743,16 @@
 
   </div>
   
+  <!-- Botão para toggle de legendas (visível apenas no mobile) -->
+  <button class="legend-toggle" id="legend-toggle" title="Mostrar/Ocultar Legendas" style="display: none;">
+    📋
+  </button>
+  
+  <!-- Botão para toggle de controles de opacidade (visível apenas no mobile) -->
+  <button class="opacity-toggle" id="opacity-toggle" title="Mostrar/Ocultar Controles" style="display: none;">
+    🎛️
+  </button>
+  
   <div id="view-toggle" style="position: absolute; bottom: 20px; right: 20px; z-index: 1200; background: white; border-radius: 50%; box-shadow: 0 2px 6px rgba(0,0,0,0.2); width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 24px; user-select: none;">
     <span id="view-toggle-icon" title="Alternar visualização">💻</span>
   </div>
@@ -1678,6 +1781,9 @@
         console.log('Modo Desktop ativado');
       }
       
+      // Atualiza visibilidade dos botões mobile
+      updateMobileToggles();
+      
       // Força redimensionamento do mapa
       setTimeout(function() {
         map.invalidateSize();
@@ -1696,6 +1802,78 @@
     
     // Inicializa como desktop
     setViewMode(false);
+    
+    // ===== TOGGLE DE LEGENDAS MOBILE =====
+    var legendToggle = document.getElementById('legend-toggle');
+    var legendElements = document.querySelectorAll('.info.legend');
+    
+    function toggleLegend() {
+      var isVisible = legendElements[0].classList.contains('show');
+      
+      legendElements.forEach(function(legend) {
+        if (isVisible) {
+          legend.classList.remove('show');
+        } else {
+          legend.classList.add('show');
+        }
+      });
+      
+      if (isVisible) {
+        legendToggle.classList.remove('active');
+        legendToggle.title = 'Mostrar Legendas';
+      } else {
+        legendToggle.classList.add('active');
+        legendToggle.title = 'Ocultar Legendas';
+      }
+    }
+    
+    legendToggle.onclick = toggleLegend;
+    
+    // ===== TOGGLE DE CONTROLES DE OPACIDADE MOBILE =====
+    var opacityToggle = document.getElementById('opacity-toggle');
+    var opacityControls = document.querySelectorAll('.opacity-control');
+    
+    function toggleOpacityControls() {
+      var isVisible = opacityControls[0].classList.contains('show');
+      
+      opacityControls.forEach(function(control) {
+        if (isVisible) {
+          control.classList.remove('show');
+        } else {
+          control.classList.add('show');
+        }
+      });
+      
+      if (isVisible) {
+        opacityToggle.classList.remove('active');
+        opacityToggle.title = 'Mostrar Controles';
+      } else {
+        opacityToggle.classList.add('active');
+        opacityToggle.title = 'Ocultar Controles';
+      }
+    }
+    
+    opacityToggle.onclick = toggleOpacityControls;
+    
+    // Mostrar/ocultar botões baseado no modo
+    function updateMobileToggles() {
+      if (isMobileView) {
+        legendToggle.style.display = 'flex';
+        opacityToggle.style.display = 'flex';
+      } else {
+        legendToggle.style.display = 'none';
+        opacityToggle.style.display = 'none';
+        // Garantir que legendas e controles estejam visíveis no desktop
+        legendElements.forEach(function(legend) {
+          legend.classList.remove('show');
+          legend.style.display = 'block';
+        });
+        opacityControls.forEach(function(control) {
+          control.classList.remove('show');
+          control.style.display = 'block';
+        });
+      }
+    }
 
     // Inicializa o mapa
     var map = L.map('map', {
