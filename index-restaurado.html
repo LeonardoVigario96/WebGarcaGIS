@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebGIS DO MUNICÍPIO DE GARÇA-SP</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    #map-title-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 48px;
+      background: #263238;
+      color: #fff;
+      font-size: 1.25rem;
+      font-weight: bold;
+      text-align: center;
+      z-index: 2000;
+      letter-spacing: 1px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+      font-family: 'Segoe UI', Arial, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      padding: 0;
+    }
+    #logo-img {
+      max-height: 38px;
+      width: auto;
+      margin-right: 8px;
+      border-radius: 0;
+      background: none;
+      box-shadow: none;
+      padding: 0;
+      display: inline-block;
+      vertical-align: middle;
+    }
+    #map { 
+      height: calc(100vh - 48px); 
+      width: 100vw; 
+      margin-top: 48px; 
+    }
+    body { margin: 0; padding: 0; }
+    
+    /* Botões da barra de título */
+    .title-btn {
+      background: #e3f2fd;
+      color: #1976d2;
+      border: none;
+      border-radius: 20px;
+      width: 44px;
+      height: 36px;
+      font-size: 1.08rem;
+      cursor: pointer;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.10);
+      z-index: 2100;
+      transition: background 0.2s, color 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      font-weight: 400;
+    }
+    .title-btn:hover {
+      background: #bbdefb;
+      color: #1976d2;
+    }
+    
+    /* Painéis */
+    .panel {
+      position: absolute;
+      top: 60px;
+      right: 20px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      padding: 12px;
+      z-index: 1000;
+      display: none;
+      min-width: 200px;
+    }
+    
+    .panel-btn {
+      display: block;
+      width: 100%;
+      padding: 8px 12px;
+      margin: 2px 0;
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      text-align: left;
+      transition: all 0.2s;
+    }
+    
+    .panel-btn:hover {
+      background: #e9ecef;
+      border-color: #adb5bd;
+    }
+    
+    .panel-btn.active {
+      background: #007bff;
+      color: white;
+      border-color: #0056b3;
+    }
+    
+    .panel-header {
+      font-weight: bold;
+      font-size: 13px;
+      margin-bottom: 8px;
+      color: #333;
+      border-bottom: 1px solid #dee2e6;
+      padding-bottom: 4px;
+    }
+    
+
+    
+    /* Coordenadas */
+    #coordinates-display {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      background: #ffffff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-family: monospace;
+      z-index: 1000;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    /* Mini-mapa */
+    #mini-map-container {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      width: 180px;
+      height: 140px;
+      background: #fff;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      z-index: 1000;
+      overflow: hidden;
+    }
+    
+    #mini-map {
+      width: 100%;
+      height: 100%;
+    }
+    
+    #mini-map-toggle {
+      position: absolute;
+      top: 140px;
+      left: 20px;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 6px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      z-index: 1001;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+  <div id="map-title-bar">
+    <img src="imagem_gerada.png" alt="Logo" id="logo-img" />
+    <span id="map-title-text">WEBGIS DO MUNICÍPIO DE GARÇA-SP</span>
+    <button class="title-btn" id="about-btn" title="Sobre o Autor">&#9432;</button>
+    <button class="title-btn" id="fullscreen-btn" title="Tela Cheia">&#128471;</button>
+    <button class="title-btn" id="measurement-toggle" title="Ferramentas de Medição">📏</button>
+    <button class="title-btn" id="layers-toggle" title="Camadas">🗂️</button>
+    <button class="title-btn" id="basemap-toggle" title="Mapas de Fundo">🗺️</button>
+  </div>
+  
+  <div id="map"></div>
+  
+  <!-- Mini-mapa -->
+  <div id="mini-map-container">
+    <div id="mini-map"></div>
+  </div>
+  <button id="mini-map-toggle" title="Ocultar Mini Mapa">🗺️ Ocultar</button>
+  
+  <!-- Coordenadas -->
+  <div id="coordinates-display">Lat. 0.000000 ; Long. 0.000000</div>
+  
+  <!-- Painéis -->
+  <div id="layers-panel" class="panel">
+    <div class="panel-header">Camadas Temáticas</div>
+  </div>
+  
+  <div id="basemap-panel" class="panel">
+    <div class="panel-header">Mapas de Fundo</div>
+    <button class="panel-btn" data-basemap="osm">🌍 OpenStreetMap</button>
+    <button class="panel-btn active" data-basemap="esri">🛰️ Esri Satélite + Labels</button>
+    <button class="panel-btn" data-basemap="topo">🗺️ Esri Topográfico</button>
+  </div>
+  
+  <div id="measurement-panel" class="panel">
+    <div class="panel-header">Ferramentas de Medição</div>
+    <button class="panel-btn" id="distance-btn">📏 Medir Distância</button>
+    <button class="panel-btn" id="area-btn">🔲 Medir Área</button>
+    <button class="panel-btn" id="coordinate-btn">📍 Coletar Coordenadas</button>
+    <button class="panel-btn" id="clear-measurements-btn">🗑️ Limpar Medições</button>
+  </div>
+  
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    // Inicializar mapa
+    var map = L.map('map', {
+      center: [-22.2125, -49.6547],
+      zoom: 11
+    });
+    
+    // Basemaps
+    var osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap contributors'
+    });
+    
+    var esriImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      maxZoom: 19,
+      attribution: 'Tiles © Esri'
+    });
+    
+    var esriLabels = L.tileLayer('https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
+      maxZoom: 19,
+      attribution: 'Labels © Esri'
+    });
+    
+    var esriImageryWithLabels = L.layerGroup([esriImagery, esriLabels]);
+    
+    var esriTopo = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
+      maxZoom: 19,
+      attribution: 'Tiles © Esri'
+    });
+    
+    // Adicionar basemap padrão (Esri Satélite)
+    esriImageryWithLabels.addTo(map);
+    
+    // Variáveis globais
+    var overlays = {};
+    var currentBasemap = 'esri';
+    var measurementLayers = [];
+    
+    // Função para trocar basemap
+    function setBasemap(key) {
+      map.eachLayer(function(layer) {
+        if (layer === osm || layer === esriImageryWithLabels || layer === esriTopo) {
+          map.removeLayer(layer);
+        }
+      });
+      
+      if (key === 'osm') {
+        osm.addTo(map);
+      } else if (key === 'esri') {
+        esriImageryWithLabels.addTo(map);
+      } else if (key === 'topo') {
+        esriTopo.addTo(map);
+      }
+      
+      currentBasemap = key;
+    }
+    
+    // Estilos das camadas
+    var styles = {
+      "MUN_GARCA.geojson": {color: '#ffff00', weight: 4, fillOpacity: 0, opacity: 1},
+      "HID_SP.geojson": {color: '#0066cc', weight: 1, fillOpacity: 0, opacity: 1},
+      "LITO_GARCA.geojson": {color: '#b8860b', weight: 1, fillColor: '#ffe4b5', fillOpacity: 0.5, opacity: 1},
+      "AQUIF_GARCA.geojson": {color: '#3399ff', weight: 2, fillColor: '#99ccff', fillOpacity: 0.3, opacity: 1},
+      "Concha_GARCA.geojson": {color: '#ff69b4', weight: 2, fillColor: '#ffb6c1', fillOpacity: 0.6, opacity: 1},
+      "LagoArtificial_GARCA.geojson": {color: '#00bcd4', weight: 2, fillColor: '#b2ebf2', fillOpacity: 0.7, opacity: 1},
+      "MalhaRodoviaria.geojson": {color: '#e31a1c', weight: 3, fillOpacity: 0, opacity: 1},
+      "ViasAcessos_GARCA.geojson": {color: '#ff9800', weight: 2, fillOpacity: 0, opacity: 1},
+      "Bairros_GARCA.geojson": {radius: 7, color: '#333', fillColor: '#8bc34a', fillOpacity: 0.85, weight: 2, opacity: 1}
+    };
+    
+    // Lista de camadas para carregar
+    var layersToLoad = [
+      {url: 'MUN_GARCA.geojson', name: 'Limite Municipal', style: styles['MUN_GARCA.geojson']},
+      {url: 'LITO_GARCA.geojson', name: 'Litologia', style: styles['LITO_GARCA.geojson']},
+      {url: 'AQUIF_GARCA.geojson', name: 'Aquífero', style: styles['AQUIF_GARCA.geojson']},
+      {url: 'HID_SP.geojson', name: 'Hidrografia', style: styles['HID_SP.geojson']},
+      {url: 'Concha_GARCA.geojson', name: 'Concha Acústica', style: styles['Concha_GARCA.geojson']},
+      {url: 'LagoArtificial_GARCA.geojson', name: 'Lago Artificial', style: styles['LagoArtificial_GARCA.geojson']},
+      {url: 'MalhaRodoviaria.geojson', name: 'Malha Rodoviária', style: styles['MalhaRodoviaria.geojson']},
+      {url: 'ViasAcessos_GARCA.geojson', name: 'Vias de Acesso', style: styles['ViasAcessos_GARCA.geojson']},
+      {url: 'Bairros_GARCA.geojson', name: 'Bairros', style: styles['Bairros_GARCA.geojson']}
+    ];
+    
+    // Carregar camadas GeoJSON
+    function addGeoJsonLayer(url, name, style) {
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          var layer = L.geoJSON(data, {
+            style: style,
+            onEachFeature: function (feature, lyr) {
+              lyr.on('click', function(e) {
+                if (feature.properties) {
+                  var popupContent = '<div style="min-width: 200px;">';
+                  for (var key in feature.properties) {
+                    popupContent += '<p><strong>' + key + ':</strong> ' + feature.properties[key] + '</p>';
+                  }
+                  popupContent += '</div>';
+                  lyr.bindPopup(popupContent).openPopup();
+                }
+              });
+            }
+          });
+          
+          overlays[name] = layer;
+          layer.addTo(map);
+          
+          // Adicionar ao painel de camadas
+          var layersPanel = document.getElementById('layers-panel');
+          
+          var layerContainer = document.createElement('div');
+          layerContainer.style.marginBottom = '10px';
+          layerContainer.style.border = '1px solid #dee2e6';
+          layerContainer.style.borderRadius = '4px';
+          layerContainer.style.padding = '8px';
+          
+          var btn = document.createElement('button');
+          btn.className = 'panel-btn active';
+          btn.textContent = name;
+          btn.style.marginBottom = '5px';
+          btn.onclick = function() {
+            if (map.hasLayer(layer)) {
+              map.removeLayer(layer);
+              btn.classList.remove('active');
+            } else {
+              layer.addTo(map);
+              btn.classList.add('active');
+            }
+ 
+          };
+          
+          var opacityContainer = document.createElement('div');
+          opacityContainer.style.marginTop = '5px';
+          
+          var opacityLabel = document.createElement('div');
+          opacityLabel.textContent = 'Opacidade:';
+          opacityLabel.style.fontSize = '11px';
+          opacityLabel.style.color = '#666';
+          opacityLabel.style.marginBottom = '3px';
+          
+          var opacitySlider = document.createElement('input');
+          opacitySlider.type = 'range';
+          opacitySlider.min = '0';
+          opacitySlider.max = '1';
+          opacitySlider.step = '0.1';
+          opacitySlider.value = '1';
+          opacitySlider.style.width = '100%';
+          opacitySlider.style.height = '20px';
+          
+          opacitySlider.oninput = function() {
+            var opacity = parseFloat(this.value);
+            layer.setStyle({
+              opacity: opacity,
+              fillOpacity: opacity * 0.7
+            });
+          };
+          
+          opacityContainer.appendChild(opacityLabel);
+          opacityContainer.appendChild(opacitySlider);
+          
+          layerContainer.appendChild(btn);
+          layerContainer.appendChild(opacityContainer);
+          layersPanel.appendChild(layerContainer);
+          
+          
+        })
+        .catch(error => {
+          console.error('Erro ao carregar camada:', name, error);
+        });
+    }
+    
+    // Carregar todas as camadas
+    layersToLoad.forEach(function(layerInfo, index) {
+      setTimeout(() => {
+        addGeoJsonLayer(layerInfo.url, layerInfo.name, layerInfo.style);
+      }, (index + 1) * 200);
+    });
+    
+
+    
+    // Adicionar escala
+    L.control.scale({
+      position: 'bottomright',
+      metric: true,
+      imperial: false,
+      maxWidth: 200
+    }).addTo(map);
+    
+    // Event listeners para painéis
+    document.getElementById('layers-toggle').onclick = function() {
+      var panel = document.getElementById('layers-panel');
+      panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+      document.getElementById('basemap-panel').style.display = 'none';
+      document.getElementById('measurement-panel').style.display = 'none';
+    };
+    
+    document.getElementById('basemap-toggle').onclick = function() {
+      var panel = document.getElementById('basemap-panel');
+      panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+      document.getElementById('layers-panel').style.display = 'none';
+      document.getElementById('measurement-panel').style.display = 'none';
+    };
+    
+    document.getElementById('measurement-toggle').onclick = function() {
+      var panel = document.getElementById('measurement-panel');
+      panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+      document.getElementById('layers-panel').style.display = 'none';
+      document.getElementById('basemap-panel').style.display = 'none';
+    };
+    
+    // Event listeners para basemaps
+    document.querySelectorAll('[data-basemap]').forEach(function(btn) {
+      btn.onclick = function() {
+        var basemapKey = this.getAttribute('data-basemap');
+        setBasemap(basemapKey);
+        
+        document.querySelectorAll('[data-basemap]').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+      };
+    });
+    
+    // Coordenadas em tempo real
+    map.on('mousemove', function(e) {
+      var lat = e.latlng.lat.toFixed(6);
+      var lng = e.latlng.lng.toFixed(6);
+      document.getElementById('coordinates-display').textContent = 'Lat. ' + lat + ' ; Long. ' + lng;
+    });
+    
+    // Mini-mapa
+    var miniMap = null;
+    var miniMapVisible = true;
+    
+    function initMiniMap() {
+      miniMap = L.map('mini-map', {
+        zoomControl: false,
+        attributionControl: false,
+        dragging: true,
+        touchZoom: true,
+        scrollWheelZoom: false,
+        doubleClickZoom: false,
+        boxZoom: false,
+        keyboard: false,
+        tap: false
+      });
+      
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 18
+      }).addTo(miniMap);
+      
+      miniMap.setView([-22.2125, -49.6564], 10);
+      
+      var bounds = map.getBounds();
+      var overviewRect = L.rectangle(bounds, {
+        color: '#ff0000',
+        weight: 2,
+        fillColor: '#ff0000',
+        fillOpacity: 0.1
+      }).addTo(miniMap);
+      
+      map.on('moveend', function() {
+        overviewRect.setBounds(map.getBounds());
+      });
+      
+      miniMap.on('mousedown', function(e) {
+        map.setView(e.latlng, map.getZoom());
+      });
+    }
+    
+    document.getElementById('mini-map-toggle').onclick = function() {
+      if (miniMapVisible) {
+        document.getElementById('mini-map-container').style.display = 'none';
+        this.textContent = '🗺️ Mostrar';
+        miniMapVisible = false;
+      } else {
+        document.getElementById('mini-map-container').style.display = 'block';
+        this.textContent = '🗺️ Ocultar';
+        miniMapVisible = true;
+        if (!miniMap) {
+          setTimeout(initMiniMap, 100);
+        }
+      }
+    };
+    
+    setTimeout(initMiniMap, 2000);
+    
+    // Fullscreen
+    document.getElementById('fullscreen-btn').onclick = function() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+      } else {
+        document.exitFullscreen();
+      }
+    };
+    
+    console.log('WebGIS restaurado com sucesso!');
+  </script>
+</body>
+</html> 

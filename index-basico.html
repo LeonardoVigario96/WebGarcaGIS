@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebGIS DO MUNICÍPIO DE GARÇA-SP</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    #map-title-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 48px;
+      background: #263238;
+      color: #fff;
+      font-size: 1.25rem;
+      font-weight: bold;
+      text-align: center;
+      z-index: 2000;
+      letter-spacing: 1px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+      font-family: 'Segoe UI', Arial, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      padding: 0;
+    }
+    #logo-img {
+      max-height: 38px;
+      width: auto;
+      margin-right: 8px;
+      border-radius: 0;
+      background: none;
+      box-shadow: none;
+      padding: 0;
+      display: inline-block;
+      vertical-align: middle;
+    }
+    #map { 
+      height: calc(100vh - 48px); 
+      width: 100vw; 
+      margin-top: 48px; 
+    }
+    body { margin: 0; padding: 0; }
+    
+    /* Botões da barra de título */
+    .title-btn {
+      background: #e3f2fd;
+      color: #1976d2;
+      border: none;
+      border-radius: 20px;
+      width: 44px;
+      height: 36px;
+      font-size: 1.08rem;
+      cursor: pointer;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.10);
+      z-index: 2100;
+      transition: background 0.2s, color 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      font-weight: 400;
+    }
+    .title-btn:hover {
+      background: #bbdefb;
+      color: #1976d2;
+    }
+    
+    /* Coordenadas */
+    #coordinates-display {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      background: #ffffff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-family: monospace;
+      z-index: 1000;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    /* Mini-mapa */
+    #mini-map-container {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      width: 180px;
+      height: 140px;
+      background: #fff;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      z-index: 1000;
+      overflow: hidden;
+    }
+    
+    #mini-map {
+      width: 100%;
+      height: 100%;
+    }
+    
+    #mini-map-toggle {
+      position: absolute;
+      top: 140px;
+      left: 20px;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 6px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      z-index: 1001;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+  <div id="map-title-bar">
+    <img src="imagem_gerada.png" alt="Logo" id="logo-img" />
+    <span id="map-title-text">WEBGIS DO MUNICÍPIO DE GARÇA-SP</span>
+    <button class="title-btn" id="about-btn" title="Sobre o Autor">&#9432;</button>
+    <button class="title-btn" id="fullscreen-btn" title="Tela Cheia">&#128471;</button>
+  </div>
+  
+  <div id="map"></div>
+  
+  <!-- Mini-mapa -->
+  <div id="mini-map-container">
+    <div id="mini-map"></div>
+  </div>
+  <button id="mini-map-toggle" title="Ocultar Mini Mapa">🗺️ Ocultar</button>
+  
+  <!-- Coordenadas -->
+  <div id="coordinates-display">Lat. 0.000000 ; Long. 0.000000</div>
+  
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    // Inicializar mapa
+    var map = L.map('map', {
+      center: [-22.2125, -49.6547],
+      zoom: 11
+    });
+    
+    // Basemaps
+    var osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap contributors'
+    });
+    
+    var esriImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      maxZoom: 19,
+      attribution: 'Tiles © Esri'
+    });
+    
+    var esriLabels = L.tileLayer('https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
+      maxZoom: 19,
+      attribution: 'Labels © Esri'
+    });
+    
+    var esriImageryWithLabels = L.layerGroup([esriImagery, esriLabels]);
+    
+    var esriTopo = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
+      maxZoom: 19,
+      attribution: 'Tiles © Esri'
+    });
+    
+    // Adicionar basemap padrão (Esri Satélite)
+    esriImageryWithLabels.addTo(map);
+    
+    // Coordenadas em tempo real
+    map.on('mousemove', function(e) {
+      var lat = e.latlng.lat.toFixed(6);
+      var lng = e.latlng.lng.toFixed(6);
+      document.getElementById('coordinates-display').textContent = 'Lat. ' + lat + ' ; Long. ' + lng;
+    });
+    
+    // Mini-mapa
+    var miniMap = null;
+    var miniMapVisible = true;
+    
+    function initMiniMap() {
+      miniMap = L.map('mini-map', {
+        zoomControl: false,
+        attributionControl: false,
+        dragging: true,
+        touchZoom: true,
+        scrollWheelZoom: false,
+        doubleClickZoom: false,
+        boxZoom: false,
+        keyboard: false,
+        tap: false
+      });
+      
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 18
+      }).addTo(miniMap);
+      
+      miniMap.setView([-22.2125, -49.6564], 10);
+      
+      var bounds = map.getBounds();
+      var overviewRect = L.rectangle(bounds, {
+        color: '#ff0000',
+        weight: 2,
+        fillColor: '#ff0000',
+        fillOpacity: 0.1
+      }).addTo(miniMap);
+      
+      map.on('moveend', function() {
+        overviewRect.setBounds(map.getBounds());
+      });
+      
+      miniMap.on('mousedown', function(e) {
+        map.setView(e.latlng, map.getZoom());
+      });
+    }
+    
+    document.getElementById('mini-map-toggle').onclick = function() {
+      if (miniMapVisible) {
+        document.getElementById('mini-map-container').style.display = 'none';
+        this.textContent = '🗺️ Mostrar';
+        miniMapVisible = false;
+      } else {
+        document.getElementById('mini-map-container').style.display = 'block';
+        this.textContent = '🗺️ Ocultar';
+        miniMapVisible = true;
+        if (!miniMap) {
+          setTimeout(initMiniMap, 100);
+        }
+      }
+    };
+    
+    setTimeout(initMiniMap, 2000);
+    
+    // Fullscreen
+    document.getElementById('fullscreen-btn').onclick = function() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+      } else {
+        document.exitFullscreen();
+      }
+    };
+    
+    console.log('WebGIS básico carregado com sucesso!');
+  </script>
+</body>
+</html> 

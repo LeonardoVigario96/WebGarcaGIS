@@ -1,0 +1,3651 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>WebGIS DO MUNICÍPIO DE GARÇA-SP</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    /* Reset e configurações base */
+    * {
+      box-sizing: border-box;
+    }
+    
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #f8fafc;
+      overflow-x: hidden;
+    }
+    
+    /* Header moderno */
+    #map-title-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 60px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: 600;
+      text-align: center;
+      z-index: 2000;
+      letter-spacing: 0.5px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      font-family: 'Inter', 'Segoe UI', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 0;
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    #logo-img {
+      max-height: 42px;
+      width: auto;
+      margin-right: 8px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.25);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      padding: 6px;
+      display: inline-block;
+      vertical-align: middle;
+      transition: all 0.3s ease;
+      border: 2px solid rgba(255,255,255,0.3);
+    }
+    
+    #logo-img:hover {
+      transform: scale(1.08);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+      background: rgba(255,255,255,0.4);
+      border-color: rgba(255,255,255,0.5);
+    }
+    @media (max-width: 768px) {
+      #map-title-bar {
+        font-size: 1rem;
+        height: 50px;
+        gap: 8px;
+        padding: 0 16px;
+      }
+      #logo-img {
+        max-height: 32px;
+        margin-right: 6px;
+        padding: 4px;
+        border-width: 1.5px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      #map-title-bar {
+        font-size: 0.9rem;
+        height: 45px;
+        gap: 6px;
+        padding: 0 12px;
+      }
+      #logo-img {
+        max-height: 28px;
+        margin-right: 4px;
+        padding: 3px;
+        border-width: 1px;
+      }
+    }
+    #map-title-text {
+      display: inline-block;
+      vertical-align: middle;
+    }
+    @media (max-width: 600px) {
+      #map-title-bar {
+        font-size: 1rem;
+        padding: 8px 0 7px 0;
+        gap: 8px;
+      }
+      #logo-img {
+        height: 26px;
+        margin-right: 4px;
+        padding: 1px 2px;
+      }
+    }
+    #map { 
+      height: calc(100vh - 60px); 
+      width: 100vw; 
+      margin-top: 60px;
+      border-radius: 0;
+      box-shadow: inset 0 2px 10px rgba(0,0,0,0.1);
+    }
+    @media (max-width: 768px) {
+      #map { 
+        height: calc(100vh - 50px); 
+        margin-top: 50px; 
+      }
+    }
+    
+    @media (max-width: 480px) {
+      #map { 
+        height: calc(100vh - 45px); 
+        margin-top: 45px; 
+      }
+    }
+    body { margin: 0; padding: 0; }
+    /* Controles modernos */
+    .opacity-control, .info.legend {
+      font-size: 14px;
+      z-index: 1000;
+      max-width: 90vw;
+      box-sizing: border-box;
+      margin-bottom: 10px;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: all 0.3s ease;
+    }
+    
+    .opacity-control:hover, .info.legend:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    }
+    .info.legend {
+      bottom: 80px !important;
+      left: 20px !important;
+      padding: 16px !important;
+      min-width: 200px;
+      max-width: 300px;
+    }
+    
+    .info.legend h4 {
+      margin: 0 0 12px 0 !important;
+      color: #1a202c !important;
+      font-size: 16px !important;
+      font-weight: 600 !important;
+      border-bottom: 2px solid #e2e8f0 !important;
+      padding-bottom: 8px !important;
+    }
+    .opacity-control label {
+      display: block;
+      margin-bottom: 4px;
+    }
+    .opacity-control input[type=range] {
+      width: 100%;
+      margin-bottom: 6px;
+    }
+    @media (max-width: 768px) {
+      .opacity-control, .info.legend {
+        font-size: 13px;
+        min-width: 140px;
+        max-width: 95vw;
+        padding: 10px;
+        border-radius: 10px;
+      }
+      
+      .info.legend {
+        min-width: 180px;
+        max-width: 280px;
+        padding: 12px !important;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .opacity-control, .info.legend {
+        font-size: 12px;
+        min-width: 120px;
+        max-width: 90vw;
+        padding: 8px;
+        border-radius: 8px;
+      }
+      
+      .info.legend {
+        min-width: 160px;
+        max-width: 250px;
+        padding: 10px !important;
+      }
+    }
+    
+    /* Melhorar toque em mobile */
+    .leaflet-control, .opacity-control, .info.legend {
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    /* Detecção de mobile */
+    @media (max-width: 768px) {
+      body {
+        touch-action: manipulation;
+        -webkit-overflow-scrolling: touch;
+      }
+      
+      /* Header mobile otimizado */
+      #map-title-bar {
+        height: 55px;
+        font-size: 0.95rem;
+        padding: 0 12px;
+        gap: 8px;
+      }
+      
+      #logo-img {
+        max-height: 35px;
+        padding: 4px;
+        border-width: 1.5px;
+      }
+      
+      /* Mapa mobile */
+      #map {
+        height: calc(100vh - 55px);
+        margin-top: 55px;
+        touch-action: manipulation;
+      }
+      
+      /* Controles mobile otimizados */
+      .opacity-control, .info.legend {
+        font-size: 14px;
+        min-width: 160px;
+        max-width: 92vw;
+        padding: 12px;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        touch-action: manipulation;
+      }
+      
+      .info.legend {
+        min-width: 200px;
+        max-width: 280px;
+        padding: 14px !important;
+        bottom: 70px !important;
+        left: 15px !important;
+      }
+      
+      .info.legend h4 {
+        font-size: 15px !important;
+        margin-bottom: 10px !important;
+        padding-bottom: 6px !important;
+      }
+      
+      /* Controles de opacidade mobile */
+      .opacity-control {
+        min-width: 160px;
+        max-width: 200px;
+        padding: 12px;
+      }
+      
+      .opacity-control label {
+        font-size: 13px;
+        margin-bottom: 4px;
+        font-weight: 500;
+      }
+      
+      .opacity-control input[type=range] {
+        width: 100%;
+        height: 6px;
+        margin-bottom: 6px;
+        accent-color: #667eea;
+      }
+      
+      .opacity-control strong {
+        font-size: 14px;
+        margin-bottom: 4px;
+        font-weight: 600;
+      }
+      
+      /* Controles Leaflet mobile */
+      .leaflet-control-layers {
+        font-size: 14px;
+        max-width: 92vw;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+      
+      .leaflet-control-layers-toggle {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+      }
+      
+      .leaflet-control-zoom {
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+      
+      .leaflet-control-zoom a {
+        width: 44px;
+        height: 44px;
+        border-radius: 8px;
+        font-size: 18px;
+        font-weight: 600;
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: #333;
+        transition: all 0.2s ease;
+      }
+      
+      .leaflet-control-zoom a:hover {
+        background: rgba(255, 255, 255, 1);
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      }
+      
+      /* Botão de toggle mobile */
+      #view-toggle {
+        bottom: 15px;
+        right: 15px;
+        width: 50px;
+        height: 50px;
+        font-size: 22px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        transition: all 0.2s ease;
+      }
+      
+      #view-toggle:hover {
+        transform: scale(1.1);
+        box-shadow: 0 12px 32px rgba(0,0,0,0.2);
+      }
+    }
+    
+    /* Mobile pequeno (smartphones) */
+    @media (max-width: 480px) {
+      #map-title-bar {
+        height: 50px;
+        font-size: 0.9rem;
+        padding: 0 10px;
+        gap: 6px;
+      }
+      
+      #logo-img {
+        max-height: 30px;
+        padding: 3px;
+        border-width: 1px;
+      }
+      
+      #map {
+        height: calc(100vh - 50px);
+        margin-top: 50px;
+      }
+      
+      .opacity-control, .info.legend {
+        font-size: 13px;
+        min-width: 140px;
+        max-width: 88vw;
+        padding: 10px;
+        border-radius: 10px;
+      }
+      
+      .info.legend {
+        min-width: 180px;
+        max-width: 260px;
+        padding: 12px !important;
+        bottom: 65px !important;
+        left: 12px !important;
+      }
+      
+      .info.legend h4 {
+        font-size: 14px !important;
+        margin-bottom: 8px !important;
+      }
+      
+      .opacity-control label {
+        font-size: 12px;
+        margin-bottom: 3px;
+      }
+      
+      .opacity-control input[type=range] {
+        height: 5px;
+        margin-bottom: 5px;
+      }
+      
+      .opacity-control strong {
+        font-size: 13px;
+        margin-bottom: 3px;
+      }
+      
+      .leaflet-control-layers {
+        font-size: 13px;
+        max-width: 88vw;
+        border-radius: 10px;
+      }
+      
+      .leaflet-control-layers-toggle {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+      }
+      
+      .leaflet-control-zoom a {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        font-size: 16px;
+      }
+      
+      #view-toggle {
+        bottom: 12px;
+        right: 12px;
+        width: 45px;
+        height: 45px;
+        font-size: 20px;
+        border-radius: 10px;
+      }
+    }
+    
+    /* Mobile muito pequeno */
+    @media (max-width: 360px) {
+      #map-title-bar {
+        height: 45px;
+        font-size: 0.85rem;
+        padding: 0 8px;
+      }
+      
+      #logo-img {
+        max-height: 26px;
+        padding: 2px;
+      }
+      
+      #map {
+        height: calc(100vh - 45px);
+        margin-top: 45px;
+      }
+      
+      .opacity-control, .info.legend {
+        font-size: 12px;
+        min-width: 120px;
+        max-width: 85vw;
+        padding: 8px;
+        border-radius: 8px;
+      }
+      
+      .info.legend {
+        min-width: 160px;
+        max-width: 240px;
+        padding: 10px !important;
+        bottom: 60px !important;
+        left: 10px !important;
+      }
+      
+      .leaflet-control-layers {
+        font-size: 12px;
+        max-width: 85vw;
+        border-radius: 8px;
+        border-radius: 8px;
+      }
+      
+      .leaflet-control-layers-toggle {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+      }
+      
+      .leaflet-control-zoom a {
+        width: 36px;
+        height: 36px;
+        border-radius: 6px;
+        font-size: 14px;
+      }
+      
+      #view-toggle {
+        bottom: 10px;
+        right: 10px;
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+        border-radius: 8px;
+      }
+    }
+    #view-toggle {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      top: auto !important;
+      left: auto !important;
+      transition: box-shadow 0.2s;
+      z-index: 1200;
+    }
+    #view-toggle:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    @media (max-width: 600px) {
+      #view-toggle {
+        bottom: 12px;
+        right: 12px;
+        width: 38px;
+        height: 38px;
+        font-size: 20px;
+      }
+    }
+    .opacity-control {
+      background: rgba(255, 255, 255, 0.95);
+      font-size: 13px;
+      min-width: 140px;
+      max-width: 200px;
+      padding: 12px;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+    }
+    .opacity-control label {
+      display: block;
+      margin-bottom: 2px;
+      font-size: 12px;
+    }
+    .opacity-control input[type=range] {
+      width: 100%;
+      margin-bottom: 8px;
+      vertical-align: middle;
+      accent-color: #667eea;
+      height: 4px;
+      border-radius: 2px;
+      background: #e2e8f0;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+    
+    .opacity-control input[type=range]:hover {
+      accent-color: #764ba2;
+    }
+    .opacity-control strong {
+      font-size: 13px;
+      margin-bottom: 2px;
+      display: block;
+    }
+
+    .opacity-slider-container input[type=range] {
+      width: 70px;
+      height: 2px;
+      margin-bottom: 0;
+      accent-color: #bbb;
+      background: #eee;
+      border-radius: 2px;
+      outline: none;
+      box-shadow: none;
+      padding: 0;
+      vertical-align: middle;
+    }
+    .opacity-slider-container {
+      margin-bottom: 2px !important;
+    }
+    #about-btn {
+      position: absolute;
+      right: 18px;
+      top: 8px;
+      background: #e3f2fd;
+      color: #1976d2;
+      border: none;
+      border-radius: 20px;
+      width: 44px;
+      height: 36px;
+      font-size: 1.08rem;
+      cursor: pointer;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.10);
+      z-index: 2100;
+      transition: background 0.2s, color 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      font-weight: 400;
+    }
+    #about-btn:hover {
+      background: #bbdefb;
+      color: #1976d2;
+    }
+    .about-btn-icon {
+      font-size: 1.1em;
+      vertical-align: middle;
+      margin-left: 2px;
+      display: inline-block;
+      color: #90caf9;
+      font-weight: normal;
+    }
+    .about-btn-text {
+      display: inline-block;
+      vertical-align: middle;
+      color: #90caf9;
+      font-weight: 400;
+    }
+    @media (max-width: 600px) {
+      #about-btn { right: 8px; top: 4px; width: 30px; height: 30px; font-size: 0.98rem; }
+      .about-btn-text { display: none; }
+      .about-btn-icon { font-size: 1.2em; }
+    }
+    
+    /* Botão Fullscreen */
+    #fullscreen-btn {
+      position: absolute;
+      right: 70px;
+      top: 8px;
+      background: #e3f2fd;
+      color: #1976d2;
+      border: none;
+      border-radius: 20px;
+      width: 44px;
+      height: 36px;
+      font-size: 1.08rem;
+      cursor: pointer;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.10);
+      z-index: 2100;
+      transition: background 0.2s, color 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      font-weight: 400;
+    }
+    
+
+    
+    /* Painel de Ferramentas de Medição */
+    #measurement-panel {
+      position: absolute;
+      top: 60px;
+      right: 20px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      padding: 8px;
+      z-index: 1000;
+      display: none;
+      min-width: 200px;
+    }
+    
+    /* Painel de Controles de Camadas */
+    #layers-panel {
+      position: absolute;
+      top: 60px;
+      right: 20px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      padding: 8px;
+      z-index: 1000;
+      display: none;
+      min-width: 220px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    
+    /* Painel de Basemaps */
+    #basemap-panel {
+      position: absolute;
+      top: 60px;
+      right: 20px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      padding: 8px;
+      z-index: 1000;
+      display: none;
+      min-width: 180px;
+    }
+    
+    .panel-btn {
+      display: block;
+      width: 100%;
+      padding: 8px 12px;
+      margin: 2px 0;
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      text-align: left;
+      transition: all 0.2s;
+    }
+    
+    .panel-btn:hover {
+      background: #e9ecef;
+      border-color: #adb5bd;
+    }
+    
+    .panel-btn.active {
+      background: #007bff;
+      color: white;
+      border-color: #0056b3;
+    }
+    
+    .panel-btn i {
+      margin-right: 8px;
+      font-style: normal;
+    }
+    
+    .panel-header {
+      font-weight: bold;
+      font-size: 13px;
+      margin-bottom: 8px;
+      color: #333;
+      border-bottom: 1px solid #dee2e6;
+      padding-bottom: 4px;
+    }
+    
+    .basemap-option {
+      display: flex;
+      align-items: center;
+      padding: 6px 8px;
+      margin: 2px 0;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: background 0.2s;
+    }
+    
+    .basemap-option:hover {
+      background: #f8f9fa;
+    }
+    
+    .basemap-option.active {
+      background: #e3f2fd;
+      color: #1976d2;
+    }
+    
+    .basemap-option input[type="radio"] {
+      margin-right: 8px;
+    }
+    
+    /* Estilos para controles de opacidade no painel */
+    .opacity-slider-container {
+      background: #f8f9fa;
+      border-radius: 4px;
+      padding: 4px 8px;
+      margin: 2px 0 4px 24px;
+      border: 1px solid #e9ecef;
+    }
+    
+    .opacity-slider-container input[type="range"] {
+      width: 80px;
+      height: 2px;
+      accent-color: #007bff;
+      background: #dee2e6;
+      border-radius: 1px;
+      outline: none;
+    }
+    
+    .opacity-slider-container span {
+      font-size: 11px;
+      color: #666;
+      font-weight: 500;
+    }
+    
+    .labels-checkbox-container {
+      background: #f8f9fa;
+      border-radius: 4px;
+      padding: 4px 8px;
+      margin: 2px 0 4px 24px;
+      border: 1px solid #e9ecef;
+    }
+    
+    .labels-checkbox-container input[type="checkbox"] {
+      margin: 0;
+      transform: scale(0.9);
+      accent-color: #28a745;
+    }
+    
+    .labels-checkbox-container label {
+      font-size: 11px;
+      color: #666;
+      font-weight: 500;
+      cursor: pointer;
+      margin: 0;
+    }
+    
+    .measurement-btn {
+      display: block;
+      width: 100%;
+      padding: 8px 12px;
+      margin: 2px 0;
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      text-align: left;
+      transition: all 0.2s;
+    }
+    
+    .measurement-btn:hover {
+      background: #e9ecef;
+      border-color: #adb5bd;
+    }
+    
+    .measurement-btn.active {
+      background: #007bff;
+      color: white;
+      border-color: #0056b3;
+    }
+    
+    .measurement-btn i {
+      margin-right: 8px;
+      font-style: normal;
+    }
+    
+    #measurement-toggle {
+      position: absolute;
+      right: 120px;
+      top: 8px;
+      background: #e3f2fd;
+      color: #1976d2;
+      border: none;
+      border-radius: 20px;
+      width: 44px;
+      height: 36px;
+      font-size: 1.08rem;
+      cursor: pointer;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.10);
+      z-index: 2100;
+      transition: background 0.2s, color 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      font-weight: 400;
+    }
+    
+    #layers-toggle {
+      position: absolute;
+      right: 170px;
+      top: 8px;
+      background: #e3f2fd;
+      color: #1976d2;
+      border: none;
+      border-radius: 20px;
+      width: 44px;
+      height: 36px;
+      font-size: 1.08rem;
+      cursor: pointer;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.10);
+      z-index: 2100;
+      transition: background 0.2s, color 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      font-weight: 400;
+    }
+    
+    #basemap-toggle {
+      position: absolute;
+      right: 220px;
+      top: 8px;
+      background: #e3f2fd;
+      color: #1976d2;
+      border: none;
+      border-radius: 20px;
+      width: 44px;
+      height: 36px;
+      font-size: 1.08rem;
+      cursor: pointer;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.10);
+      z-index: 2100;
+      transition: background 0.2s, color 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      font-weight: 400;
+    }
+    
+    #measurement-toggle:hover {
+      background: #bbdefb;
+      color: #1976d2;
+    }
+    
+    @media (max-width: 600px) {
+      #measurement-toggle { right: 42px; top: 4px; width: 30px; height: 30px; font-size: 0.98rem; }
+      #layers-toggle { right: 78px; top: 4px; width: 30px; height: 30px; font-size: 0.98rem; }
+      #basemap-toggle { right: 114px; top: 4px; width: 30px; height: 30px; font-size: 0.98rem; }
+      #measurement-panel { top: 50px; right: 12px; min-width: 160px; }
+      #layers-panel { top: 50px; right: 12px; min-width: 160px; }
+      #basemap-panel { top: 50px; right: 12px; min-width: 160px; }
+    }
+    #fullscreen-btn:hover {
+      background: #bbdefb;
+      color: #1976d2;
+    }
+    .fullscreen-btn-icon {
+      font-size: 1.1em;
+      vertical-align: middle;
+      margin-left: 2px;
+      display: inline-block;
+      color: #90caf9;
+      font-weight: normal;
+    }
+    .fullscreen-btn-text {
+      display: inline-block;
+      vertical-align: middle;
+      color: #90caf9;
+      font-weight: 400;
+    }
+    @media (max-width: 600px) {
+      #fullscreen-btn { right: 42px; top: 4px; width: 30px; height: 30px; font-size: 0.98rem; }
+      .fullscreen-btn-text { display: none; }
+      .fullscreen-btn-icon { font-size: 1.2em; }
+    }
+    
+    /* Mini-mapa (Overview Map) */
+    #mini-map-container {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      width: 180px;
+      height: 140px;
+      background: #fff;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      z-index: 1000;
+      overflow: hidden;
+      display: block; /* Começar visível */
+    }
+    
+    #mini-map {
+      width: 100%;
+      height: 100%;
+    }
+    
+    #mini-map-toggle {
+      position: absolute;
+      top: 140px;
+      left: 20px;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 6px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      z-index: 1001;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      transition: background 0.2s;
+    }
+    
+    #mini-map-toggle:hover {
+      background: #f0f0f0;
+    }
+    
+    @media (max-width: 600px) {
+      #mini-map-container {
+        top: 12px;
+        left: 12px;
+        width: 140px;
+        height: 110px;
+      }
+      
+      #mini-map-toggle {
+        top: 110px;
+        left: 12px;
+        padding: 4px 8px;
+        font-size: 11px;
+      }
+      
+      #north-arrow {
+        bottom: 90px;
+        right: 50px;
+      }
+      
+      #zoom-btns-bar {
+        bottom: 70px;
+        right: 12px;
+      }
+      
+      .info.legend {
+        bottom: 50px !important;
+        left: 12px !important;
+      }
+    }
+    
+    /* Tooltip do mini-mapa */
+    .mini-map-tooltip {
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 6px 10px;
+      font-size: 11px;
+      font-weight: normal;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+    
+    .mini-map-tooltip::before {
+      border-top-color: rgba(0, 0, 0, 0.8);
+    }
+    
+
+    #about-modal.modal-hidden {
+      display: none;
+    }
+    #about-modal {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.35);
+      z-index: 3000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-content {
+      background: #fff;
+      border-radius: 10px;
+      padding: 28px 24px 20px 24px;
+      min-width: 320px;
+      max-width: 90vw;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+      position: relative;
+      text-align: left;
+      font-size: 1.08rem;
+    }
+    #close-modal {
+      position: absolute;
+      top: 10px;
+      right: 14px;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: #263238;
+      cursor: pointer;
+    }
+    .modal-content a { color: #1976d2; text-decoration: none; }
+    .modal-content a:hover { text-decoration: underline; }
+    .modal-content img { margin-right: 4px; }
+    @media (max-width: 600px) {
+      .modal-content { min-width: 0; padding: 18px 6vw 14px 6vw; font-size: 0.98rem; }
+      #about-btn { right: 8px; top: 4px; width: 30px; height: 30px; font-size: 1.1rem; }
+    }
+    #north-arrow {
+      position: absolute;
+      bottom: 110px;
+      right: 60px;
+      z-index: 1000;
+      background: none;
+      border: none;
+      padding: 0;
+      margin: 0;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #north-arrow svg {
+      width: 100%;
+      height: 100%;
+      filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
+    }
+    #north-arrow svg path {
+      fill: #263238;
+    }
+    #zoom-btns-bar {
+      position: absolute;
+      bottom: 80px;
+      right: 20px;
+      z-index: 1000;
+      background: #fff;
+      border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      padding: 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .zoom-btn {
+      width: 32px;
+      height: 32px;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      color: #555;
+      transition: all 0.2s;
+    }
+    .zoom-btn:hover {
+      background: #f5f5f5;
+      border-color: #bbb;
+      color: #333;
+    }
+    .zoom-btn:active {
+      background: #e0e0e0;
+    }
+    @media (max-width: 600px) {
+      #north-arrow {
+        top: 50px;
+        left: 12px;
+        width: 32px;
+        height: 32px;
+      }
+      #zoom-btns-bar {
+        top: 90px;
+        left: 12px;
+      }
+      .zoom-btn {
+        width: 28px;
+        height: 28px;
+        font-size: 14px;
+      }
+    }
+    /* FASE 1 - Novas ferramentas */
+    /* Coordenadas do cursor - removido duplicação */
+    /* Barra de escala */
+    .leaflet-control-scale {
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 4px 8px;
+      font-size: 11px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    
+    /* Responsividade para mobile */
+    @media (max-width: 600px) {
+      .leaflet-control-scale {
+        bottom: 12px !important;
+        left: 12px !important;
+        font-size: 10px !important;
+        padding: 3px 6px !important;
+      }
+      .info.legend {
+        bottom: 10px !important;
+        left: 10px !important;
+        font-size: 12px !important;
+        padding: 6px !important;
+        max-width: 95vw !important;
+      }
+    }
+</style>
+  <style>
+.bairro-label {
+  background: rgba(255,255,255,0.85);
+  color: #388e3c;
+  font-size: 13px;
+  font-weight: bold;
+  border-radius: 6px;
+  border: 1px solid #bdbdbd;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  padding: 2px 7px;
+  pointer-events: none;
+  white-space: nowrap;
+  text-shadow: 0 1px 0 #fff;
+}
+#bottom-right-bar {
+  position: absolute;
+  bottom: 20px;
+  right: 70px;
+  z-index: 1200;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  /* Garantir que não sobreponha os controles de zoom */
+  max-width: 300px;
+  /* Garantir que fique dentro do mapa */
+  pointer-events: none;
+}
+#coordinates-display {
+  background: #ffffff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-family: monospace;
+  min-width: 200px;
+  text-align: left;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  color: #000;
+  font-weight: bold;
+  pointer-events: auto;
+  white-space: nowrap;
+}
+    .leaflet-control-scale {
+      position: absolute !important;
+      bottom: 20px !important;
+      left: 20px !important;
+      margin-bottom: 0 !important;
+      margin-left: 0 !important;
+      background: #ffffff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 4px 8px;
+      font-size: 11px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      display: inline-block;
+      color: #000;
+      font-weight: bold;
+      z-index: 1000;
+    }
+@media (max-width: 600px) {
+  #bottom-right-bar {
+    bottom: 12px;
+    right: 50px;
+    gap: 2px;
+  }
+  #coordinates-display {
+    font-size: 10px;
+    padding: 3px 6px;
+    min-width: 100px;
+  }
+  .leaflet-control-scale {
+    font-size: 9px;
+    padding: 2px 4px;
+  }
+}
+</style>
+</head>
+<body>
+
+  <div id="map-title-bar">
+    <img src="imagem_gerada.png" alt="Logo" id="logo-img" />
+    <span id="map-title-text">WEBGIS DO MUNICÍPIO DE GARÇA-SP</span>
+    <button id="about-btn" title="Sobre o Autor" type="button"><span class="about-btn-icon">&#9432;</span></button>
+    <button id="fullscreen-btn" title="Tela Cheia" type="button"><span class="fullscreen-btn-icon">&#128471;</span></button>
+    <button id="measurement-toggle" title="Ferramentas de Medição" type="button">📏</button>
+    <button id="layers-toggle" title="Camadas" type="button">🗂️</button>
+    <button id="basemap-toggle" title="Mapas de Fundo" type="button">🗺️</button>
+  </div>
+  <div id="about-modal" class="modal-hidden">
+    <div class="modal-content">
+      <button id="close-modal" title="Fechar">&times;</button>
+      <h2>Sobre o Autor</h2>
+      <div style="display: flex; align-items: flex-start; gap: 32px; flex-wrap: wrap;">
+        <div style="min-width: 270px; max-width: 480px;">
+          <p><b>Nome:</b> Leonardo Vigário Moreira de Castro</p>
+          <p><b>LinkedIn:</b> <a href="https://www.linkedin.com/in/leonardovigario/" target="_blank" rel="noopener"><img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/linkedin.svg" alt="LinkedIn" style="height:18px;vertical-align:middle;"> linkedin.com/in/leonardovigario</a></p>
+          <p><b>WhatsApp:</b> <a href="https://wa.me/5531975837360" target="_blank" rel="noopener"><img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/whatsapp.svg" alt="WhatsApp" style="height:18px;vertical-align:middle;"> (31) 97583-7360</a></p>
+          <p><b>E-mail:</b> <a href="mailto:leonardovigario@hotmail.com">leonardovigario@hotmail.com</a></p>
+        </div>
+        <div style="flex:1; min-width: 120px; display: flex; align-items: center; justify-content: center;">
+          <img src="imagem_gerada.png" alt="Logo Garça" style="max-width: 180px; max-height: 140px; width: auto; height: auto; display: block; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.10); background: none; margin: 0 auto;" />
+        </div>
+      </div>
+      <p style="margin-top:12px;">WebGIS desenvolvido para analisar as principais características físicas e químicas do município de Garça-SP e sua região.</p>
+    </div>
+  </div>
+  <div id="map">
+    <!-- Seta norte sozinha, sem caixa de fundo -->
+    <div id="north-arrow">
+      <svg width="32" height="48" viewBox="0 0 32 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="16,4 28,36 16,28 4,36" fill="#fff" stroke="#222" stroke-width="2"/>
+        <polygon points="16,4 28,36 16,28" fill="#111"/>
+        <text x="16" y="46" text-anchor="middle" font-size="15" font-family="Arial" fill="#222" font-weight="bold">N</text>
+      </svg>
+    </div>
+    <!-- Bloco de zoom separado -->
+    <div id="zoom-btns-bar">
+      <button id="zoom-in-btn" class="zoom-btn" title="Zoom In" aria-label="Zoom In">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="14" cy="14" r="12" fill="#f7f7f7" stroke="#888" stroke-width="2"/>
+          <g stroke="#555" stroke-width="2" stroke-linecap="round">
+            <line x1="14" y1="10" x2="14" y2="18"/>
+            <line x1="10" y1="14" x2="18" y2="14"/>
+          </g>
+          <circle cx="18.5" cy="18.5" r="3.5" stroke="#888" stroke-width="2" fill="none"/>
+          <line x1="21" y1="21" x2="25" y2="25" stroke="#888" stroke-width="2"/>
+        </svg>
+      </button>
+      <button id="zoom-out-btn" class="zoom-btn" title="Zoom Out" aria-label="Zoom Out">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="14" cy="14" r="12" fill="#f7f7f7" stroke="#888" stroke-width="2"/>
+          <g stroke="#555" stroke-width="2" stroke-linecap="round">
+            <line x1="10" y1="14" x2="18" y2="14"/>
+          </g>
+          <circle cx="18.5" cy="18.5" r="3.5" stroke="#888" stroke-width="2" fill="none"/>
+          <line x1="21" y1="21" x2="25" y2="25" stroke="#888" stroke-width="2"/>
+        </svg>
+      </button>
+    </div>
+    
+    <!-- Mini-mapa (Overview Map) -->
+    <div id="mini-map-container">
+      <div id="mini-map"></div>
+    </div>
+    
+    <!-- Botão para mostrar/ocultar mini-mapa -->
+    <button id="mini-map-toggle" title="Ocultar Mini Mapa">🗺️ Ocultar</button>
+    
+    <!-- Coordenadas no canto inferior direito -->
+    <div id="bottom-right-bar">
+      <div id="coordinates-display">Lat. 0.000000 ; Long. 0.000000</div>
+    </div>
+    
+    <!-- Painel de Ferramentas de Medição -->
+    <div id="measurement-panel">
+      <button class="measurement-btn" id="distance-btn" title="Medir Distância">
+        <i>📏</i>Medir Distância
+      </button>
+      <button class="measurement-btn" id="area-btn" title="Medir Área">
+        <i>🔲</i>Medir Área
+      </button>
+      <button class="measurement-btn" id="angle-btn" title="Medir Ângulo">
+        <i>📐</i>Medir Ângulo
+      </button>
+      <button class="measurement-btn" id="coordinate-btn" title="Coletar Coordenadas">
+        <i>📍</i>Coletar Coordenadas
+      </button>
+      <button class="measurement-btn" id="clear-measurements-btn" title="Limpar Medições">
+        <i>🗑️</i>Limpar Medições
+      </button>
+      <button class="measurement-btn" id="history-btn" title="Histórico de Medições">
+        <i>📋</i>Histórico
+      </button>
+    </div>
+    
+    <!-- Painel de Controles de Camadas -->
+    <div id="layers-panel">
+      <div class="panel-header">Camadas Temáticas</div>
+      <!-- As camadas serão adicionadas dinamicamente via JavaScript -->
+    </div>
+    
+    <!-- Painel de Basemaps -->
+    <div id="basemap-panel">
+      <div class="panel-header">Mapas de Fundo</div>
+      <div class="basemap-option" data-basemap="osm">
+        <input type="radio" name="basemap" id="basemap-osm" value="osm">
+        <label for="basemap-osm">🌍 OpenStreetMap</label>
+      </div>
+      <div class="basemap-option" data-basemap="esri">
+        <input type="radio" name="basemap" id="basemap-esri" value="esri" checked>
+        <label for="basemap-esri">🛰️ Esri Satélite + Labels</label>
+      </div>
+      <div class="basemap-option" data-basemap="topo">
+        <input type="radio" name="basemap" id="basemap-topo" value="topo">
+        <label for="basemap-topo">🗺️ Esri Topográfico</label>
+      </div>
+    </div>
+    
+
+  </div>
+  
+  <div id="view-toggle" style="position: absolute; bottom: 20px; right: 20px; z-index: 1200; background: white; border-radius: 50%; box-shadow: 0 2px 6px rgba(0,0,0,0.2); width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 24px; user-select: none;">
+    <span id="view-toggle-icon" title="Alternar visualização">💻</span>
+  </div>
+  <!-- Remover bloco do controle customizado de zoom -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-geometryutil@0.10.0/src/leaflet.geometryutil.js"></script>
+  <script>
+    // Alternância de visualização Desktop/Mobile
+    var isMobileView = false;
+    var iconDesktop = '💻';
+    var iconMobile = '📱';
+    var toggleBtn = document.getElementById('view-toggle');
+    var toggleIcon = document.getElementById('view-toggle-icon');
+    function setViewMode(mobile) {
+      isMobileView = mobile;
+      if (mobile) {
+        document.body.classList.add('mobile-view');
+        toggleIcon.textContent = iconMobile;
+      } else {
+        document.body.classList.remove('mobile-view');
+        toggleIcon.textContent = iconDesktop;
+      }
+    }
+    toggleBtn.onclick = function() {
+      setViewMode(!isMobileView);
+    };
+    // Inicializa como desktop
+    setViewMode(false);
+
+    // Inicializa o mapa
+    var map = L.map('map', {
+      center: [-22.2125, -49.6547], // Centro aproximado de Garça-SP
+      zoom: 11,
+      zoomControl: false, // Desativa o zoom padrão na criação
+      attributionControl: true
+    });
+    
+    // Garantir que o mapa seja inicializado corretamente
+    setTimeout(function() {
+      map.invalidateSize();
+    }, 100);
+
+    // Basemap 1: OpenStreetMap
+    var osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap contributors'
+    });
+
+    // Basemap 2: Esri World Imagery + Labels
+    var esriImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      maxZoom: 19,
+      attribution: 'Tiles © Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+    });
+    var esriLabels = L.tileLayer('https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
+      maxZoom: 19,
+      attribution: 'Labels © Esri'
+    });
+    var esriImageryWithLabels = L.layerGroup([esriImagery, esriLabels]);
+
+    // Basemap 3: Esri Topographic
+    var esriTopo = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
+      maxZoom: 19,
+      attribution: 'Tiles © Esri &mdash; Source: Esri, USGS, NOAA'
+    });
+
+    // Adiciona o Esri Satélite + Labels como padrão
+    esriImageryWithLabels.addTo(map);
+
+    // Criar controle de basemaps separado (lista suspensa)
+    var baseMaps = {
+      "OpenStreetMap": osm,
+      "Esri Satélite + Labels": esriImageryWithLabels,
+      "Esri Topográfico": esriTopo
+    };
+    
+    // Função para trocar o basemap
+    function setBasemap(key) {
+      map.eachLayer(function(layer) {
+        if (layer === osm || layer === esriImageryWithLabels || layer === esriTopo) {
+          map.removeLayer(layer);
+        }
+      });
+      if (key === 'osm') osm.addTo(map);
+      if (key === 'esri') esriImageryWithLabels.addTo(map);
+      if (key === 'topo') esriTopo.addTo(map);
+    }
+    
+    // Inicializar com Esri Satélite + Labels
+    setBasemap('esri');
+
+    // Criar controle de overlays (camadas temáticas) separado
+    var overlays = {};
+    var controlLayers = L.control.layers({}, overlays, {collapsed: false, position: 'topright'}).addTo(map);
+    
+    // Ocultar o controle de camadas padrão do Leaflet
+    setTimeout(function() {
+      var leafletControl = document.querySelector('.leaflet-control-layers');
+      if (leafletControl) {
+        leafletControl.style.display = 'none';
+      }
+    }, 1000);
+
+    // Atualizar nomes amigáveis para as camadas
+    var layerNames = {
+      'MUN_GARCA.geojson': 'Limite Municipal de Garça-SP',
+      'AQUIF_GARCA.geojson': 'Aquífero de Garça-SP',
+      'LITO_GARCA.geojson': 'Litologia de Garça-SP',
+      'HID_SP.geojson': 'Hidrografia',
+      'Concha_GARCA.geojson': 'Concha Acústica',
+      'LagoArtificial_GARCA.geojson': 'Lago Artificial',
+      'RODOVIAS_SP.geojson': 'Rodovias',
+      'MalhaRodoviaria.geojson': 'Malha Rodoviária',
+                'ViasAcessos_GARCA.geojson': 'Vias Municipais',
+      'Bairros_GARCA.geojson': 'Bairros de Garça-SP'
+    };
+
+    // Função para carregar e adicionar GeoJSON (com tratamento de erro)
+    function addGeoJsonLayer(url, name, style) {
+      console.log('Tentando carregar camada:', name, 'URL:', url);
+      fetch(url)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Erro ao carregar ' + url + ': ' + response.statusText);
+          }
+          return response.json();
+        })
+        .then(data => {
+          var layer;
+          if(name === 'Bairros_GARCA.geojson') {
+            layer = L.geoJSON(data, {
+              pointToLayer: function (feature, latlng) {
+                return L.circleMarker(latlng, bairrosStyle(feature));
+              },
+              onEachFeature: function (feature, lyr) {
+                // Label permanente acima do ponto
+                if (feature.properties && feature.properties.name) {
+                  lyr.bindTooltip(feature.properties.name, {
+                    permanent: true,
+                    direction: 'top',
+                    className: 'bairro-label',
+                    offset: [0, -10]
+                  });
+                }
+                lyr.on('click', function(e) {
+                  if (feature.properties) {
+                    lyr.bindPopup(popupTableByLayer(feature.properties, layerNames[name] || name)).openPopup();
+                  }
+                });
+              }
+            });
+          } else {
+            layer = L.geoJSON(data, {
+              style: typeof style === 'function' ? style : () => style,
+              onEachFeature: function (feature, lyr) {
+                // Determinar tipo de geometria para debug
+                var geomType = feature.geometry ? feature.geometry.type : 'unknown';
+                console.log('Geometria detectada para', name, ':', geomType);
+                
+                lyr.on('click', function(e) {
+                  if (feature.properties) {
+                    lyr.bindPopup(popupTableByLayer(feature.properties, layerNames[name] || name)).openPopup();
+                  }
+                });
+              }
+            });
+          }
+          
+          overlays[layerNames[name] || name] = layer;
+          layer.addTo(map);
+          controlLayers.addOverlay(layer, layerNames[name] || name);
+          console.log('Camada carregada com sucesso:', layerNames[name] || name);
+          console.log('Overlay criada com chave:', layerNames[name] || name);
+          console.log('Tipo de geometria para', name, ':', data.features && data.features.length > 0 ? data.features[0].geometry.type : 'unknown');
+
+          // Guardar referência para opacidade e ordem
+          if(name === 'LITO_GARCA.geojson') camadaLitologia = layer;
+          if(name === 'AQUIF_GARCA.geojson') camadaAquifero = layer;
+          if(name === 'HID_SP.geojson') camadaHidro = layer;
+          if(name === 'Concha_GARCA.geojson') camadaConcha = layer;
+          if(name === 'LagoArtificial_GARCA.geojson') camadaLago = layer;
+          if(name === 'MalhaRodoviaria.geojson') camadaMalhaRodoviaria = layer;
+          if(name === 'MUN_GARCA.geojson') camadaLimite = layer;
+          if(name === 'ViasAcessos_GARCA.geojson') camadaViasAcesso = layer;
+          if(name === 'Bairros_GARCA.geojson') camadaBairros = layer;
+        })
+        .catch(error => {
+          console.error('Erro ao carregar camada:', name, error);
+        });
+    }
+
+    // Cores características para litologias (padrão cartográfico geológico)
+    var litologiaColors = {
+      // Formações do Grupo Bauru
+      'Formação Marília': '#FFD700', // Amarelo dourado - arenitos
+      'Marília': '#FFD700',
+      'MARÍLIA': '#FFD700',
+      
+      'Formação Vale do Rio do Peixe': '#8B4513', // Marrom - argilitos
+      'Vale do Rio do Peixe': '#8B4513',
+      'VALE DO RIO DO PEIXE': '#8B4513',
+      
+      'Formação Adamantina': '#D2691E', // Marrom avermelhado - arenitos
+      'Adamantina': '#D2691E',
+      'ADAMANTINA': '#D2691E',
+      
+      'Formação Araçatuba': '#CD853F', // Marrom claro - argilitos
+      'Araçatuba': '#CD853F',
+      'ARAÇATUBA': '#CD853F',
+      
+      'Formação Bauru': '#DEB887', // Marrom bege - arenitos
+      'Bauru': '#DEB887',
+      'BAURU': '#DEB887',
+      
+      // Formações do Grupo São Paulo (acima do Bauru)
+      'Formação Itararé': '#696969', // Cinza - tillitos
+      'Itararé': '#696969',
+      'ITARARÉ': '#696969',
+      
+      'Formação Tatuí': '#F5DEB3', // Bege claro - arenitos
+      'Tatuí': '#F5DEB3',
+      'TATUÍ': '#F5DEB3',
+      
+      'Formação Irati': '#2F4F4F', // Cinza escuro - folhelhos
+      'Irati': '#2F4F4F',
+      'IRATI': '#2F4F4F',
+      
+      'Formação Corumbataí': '#8B7355', // Marrom acinzentado - siltitos
+      'Corumbataí': '#8B7355',
+      'CORUMBATAÍ': '#8B7355',
+      
+      'Formação Pirambóia': '#DAA520', // Dourado - arenitos
+      'Pirambóia': '#DAA520',
+      'PIRAMBÓIA': '#DAA520',
+      
+      'Formação Botucatu': '#CD853F', // Marrom claro - arenitos
+      'Botucatu': '#CD853F',
+      'BOTUCATU': '#CD853F',
+      
+      // Classificação por tipo de rocha
+      'Arenito': '#FFD700', // Amarelo - arenitos
+      'Argilito': '#8B4513', // Marrom - argilitos
+      'Conglomerado': '#A0522D', // Marrom escuro
+      'Siltito': '#D2B48C', // Marrom claro
+      'Calcário': '#F5F5DC', // Bege claro
+      'Basalto': '#2F4F4F', // Cinza escuro
+      'Folhelho': '#2F4F4F', // Cinza escuro
+      'Tillito': '#696969', // Cinza
+      
+      // Padrão para valores não encontrados
+      'default': '#D3D3D3' // Cinza claro
+    };
+    // Cores características para aquíferos (padrão cartográfico hidrogeológico)
+    var aquiferoColors = {
+      'Classe 1s': '#00FF00', // Verde - Alta produtividade
+      'Classe 2s': '#00FFFF', // Ciano - Média produtividade
+      'Classe 3s': '#0080FF', // Azul - Baixa produtividade
+      'Classe 4s': '#0000FF', // Azul escuro - Muito baixa produtividade
+      'Classe 1': '#00FF00',  // Verde - Alta produtividade
+      'Classe 2': '#00FFFF',  // Ciano - Média produtividade
+      'Classe 3': '#0080FF',  // Azul - Baixa produtividade
+      'Classe 4': '#0000FF'   // Azul escuro - Muito baixa produtividade
+    };
+
+    // Estilos para as camadas (padrões cartográficos)
+    var styles = {
+      "MUN_GARCA.geojson": {color: '#ffff00', weight: 4, fillOpacity: 0, opacity: 1},
+      "HID_SP.geojson": {color: '#0066cc', weight: 1, fillOpacity: 0, opacity: 1},
+      "LITO_GARCA.geojson": {color: '#b8860b', weight: 1, fillColor: '#ffe4b5', fillOpacity: 0.5, opacity: 1},
+      "AQUIF_GARCA.geojson": {color: '#3399ff', weight: 2, fillColor: '#99ccff', fillOpacity: 0.3, opacity: 1},
+      "Concha_GARCA.geojson": {color: '#ff69b4', weight: 2, fillColor: '#ffb6c1', fillOpacity: 0.6, opacity: 1},
+      "LagoArtificial_GARCA.geojson": {color: '#00bcd4', weight: 2, fillColor: '#b2ebf2', fillOpacity: 0.7, opacity: 1},
+      "RODOVIAS_SP.geojson": {color: '#e31a1c', weight: 3, fillOpacity: 0, opacity: 1},
+      "MalhaRodoviaria.geojson": {color: '#e31a1c', weight: 3, fillOpacity: 0, opacity: 1},
+      "ViasAcessos_GARCA.geojson": {color: '#ff9800', weight: 2, fillOpacity: 0, opacity: 1},
+      "Bairros_GARCA.geojson": {radius: 7, color: '#333', fillColor: '#8bc34a', fillOpacity: 0.85, weight: 2, opacity: 1}
+    };
+
+    // Função de estilo dinâmica para litologia
+    function litologiaStyle(feature) {
+      var properties = feature.properties || {};
+      
+      // Tentar diferentes atributos para classificação
+      var nome = properties.NOME_UNIDA || 
+                 properties.NOME || 
+                 properties.FORMACAO || 
+                 properties.LITOLOGIA || 
+                 properties.TIPO_ROCHA ||
+                 properties.DESCRICAO ||
+                 properties.UNIDADE ||
+                 properties.GRUPO ||
+                 properties.SUBGRUPO ||
+                 properties.ESTRATO ||
+                 properties.CAMADA;
+      
+      // Se não encontrar, usar valor padrão
+      var color = litologiaColors[nome] || litologiaColors['default'] || '#D3D3D3';
+      
+      return {
+        color: color,
+        fillColor: color,
+        weight: 1,
+        fillOpacity: 0.6,
+        opacity: 1
+      };
+    }
+    // Função de estilo dinâmica para aquífero
+    function aquiferoStyle(feature) {
+      var classe = feature.properties && feature.properties.CLASSE;
+      var color = aquiferoColors[classe] || '#99ccff';
+      return {
+        color: color,
+        fillColor: color,
+        weight: 2,
+        fillOpacity: 0.4,
+        opacity: 1
+      };
+    }
+
+    // Função de estilo para bairros (pontos)
+    function bairrosStyle(feature) {
+      return styles["Bairros_GARCA.geojson"];
+    }
+
+    // Overlays e controle de camadas
+    // Remover baseMaps do controle de camadas
+    // L.control.layers(baseMaps, overlays).addTo(map); // Removido
+
+    // Adiciona as camadas GeoJSON com delay para garantir carregamento
+    setTimeout(function() {
+      addGeoJsonLayer('LITO_GARCA.geojson', 'LITO_GARCA.geojson', litologiaStyle);
+    }, 500);
+    
+    setTimeout(function() {
+      addGeoJsonLayer('AQUIF_GARCA.geojson', 'AQUIF_GARCA.geojson', aquiferoStyle);
+    }, 1000);
+    
+    setTimeout(function() {
+      addGeoJsonLayer('HID_SP.geojson', 'HID_SP.geojson', styles['HID_SP.geojson']);
+    }, 1500);
+    
+    setTimeout(function() {
+      addGeoJsonLayer('Concha_GARCA.geojson', 'Concha_GARCA.geojson', styles['Concha_GARCA.geojson']);
+    }, 2000);
+    
+    setTimeout(function() {
+      addGeoJsonLayer('LagoArtificial_GARCA.geojson', 'LagoArtificial_GARCA.geojson', styles['LagoArtificial_GARCA.geojson']);
+    }, 2500);
+    
+    setTimeout(function() {
+      addGeoJsonLayer('MUN_GARCA.geojson', 'MUN_GARCA.geojson', styles['MUN_GARCA.geojson']);
+    }, 3000);
+    
+    setTimeout(function() {
+      addGeoJsonLayer('Bairros_GARCA.geojson', 'Bairros_GARCA.geojson', bairrosStyle);
+    }, 3500);
+    
+    setTimeout(function() {
+      addGeoJsonLayer('MalhaRodoviaria.geojson', 'MalhaRodoviaria.geojson', styles['MalhaRodoviaria.geojson']);
+    }, 4000);
+    
+    setTimeout(function() {
+      addGeoJsonLayer('ViasAcessos_GARCA.geojson', 'ViasAcessos_GARCA.geojson', styles['ViasAcessos_GARCA.geojson']);
+    }, 4500);
+
+    // Função para garantir a ordem correta das camadas
+    function reorderLayers() {
+      // Ordem: Litologia (fundo), Aquífero, Hidrografia, Limite Municipal, Concha, Lago Artificial, Rodovias (topo)
+      if (camadaLitologia && map.hasLayer(camadaLitologia)) camadaLitologia.bringToBack();
+      if (camadaAquifero && map.hasLayer(camadaAquifero)) camadaAquifero.bringToFront();
+      if (camadaHidro && map.hasLayer(camadaHidro)) camadaHidro.bringToFront();
+      if (camadaLimite && map.hasLayer(camadaLimite)) camadaLimite.bringToFront();
+      if (camadaConcha && map.hasLayer(camadaConcha)) camadaConcha.bringToFront();
+      if (camadaLago && map.hasLayer(camadaLago)) camadaLago.bringToFront();
+      if (camadaMalhaRodoviaria && map.hasLayer(camadaMalhaRodoviaria)) camadaMalhaRodoviaria.bringToFront();
+      if (camadaViasAcesso && map.hasLayer(camadaViasAcesso)) camadaViasAcesso.bringToFront();
+      if (camadaBairros && map.hasLayer(camadaBairros)) camadaBairros.bringToFront();
+      // Não guardar referência camadaRodovias
+    }
+    // Guardar referência da camada Limite Municipal
+    // (já está sendo feito em addGeoJsonLayer)
+    // Reforçar ordem ao alternar overlays
+    map.on('overlayadd overlayremove', function(e) {
+      reorderLayers();
+    });
+    // Após carregar todas as camadas, garantir ordem inicial
+    setTimeout(reorderLayers, 2000);
+
+    // Remover painel de opacidade separado
+    // opacityControl.addTo(map); // Removido
+
+    // Função para adicionar slider de opacidade abaixo do nome da camada no controle de camadas
+    function addOpacitySliderToLayerControl(layerName, layerRef, defaultValue) {
+      setTimeout(function() {
+        var controls = document.querySelectorAll('.leaflet-control-layers-overlays label');
+        controls.forEach(function(label) {
+          if (label.textContent.trim() === layerName) {
+            // Evita duplicar slider
+            if (label.nextSibling && label.nextSibling.classList && label.nextSibling.classList.contains('opacity-slider-container')) return;
+            var container = document.createElement('div');
+            container.className = 'opacity-slider-container';
+            container.style = 'margin: 2px 0 6px 24px;';
+            var slider = document.createElement('input');
+            slider.type = 'range';
+            slider.min = '0';
+            slider.max = '1';
+            slider.step = '0.05';
+            slider.value = defaultValue;
+            slider.style.width = '90px';
+            slider.title = 'Opacidade';
+            slider.oninput = function(e) {
+              if (!layerRef) return;
+              layerRef.eachLayer(function (l) {
+                if (l.setStyle) l.setStyle({fillOpacity: parseFloat(e.target.value)});
+              });
+            };
+            container.appendChild(slider);
+            label.parentNode.insertBefore(container, label.nextSibling);
+          }
+        });
+      }, 500);
+    }
+
+    // Após adicionar as camadas, adicionar sliders de opacidade
+    setTimeout(function() {
+      addOpacitySliderToLayerControl('Litologia de Garça-SP', camadaLitologia, 0.5);
+      addOpacitySliderToLayerControl('Aquífero de Garça-SP', camadaAquifero, 0.3);
+      addOpacitySliderToLayerControl('Hidrografia', camadaHidro, 1);
+      addOpacitySliderToLayerControl('Concha Acústica', camadaConcha, 0.6);
+      addOpacitySliderToLayerControl('Lago Artificial', camadaLago, 0.7);
+      addOpacitySliderToLayerControl('Malha Rodoviária', camadaMalhaRodoviaria, 1);
+              addOpacitySliderToLayerControl('Vias Municipais', camadaViasAcesso, 1);
+      // Adicionar checkbox customizado para labels dos bairros
+      setTimeout(function() {
+        var controls = document.querySelectorAll('.leaflet-control-layers-overlays label');
+        controls.forEach(function(label) {
+          if (label.textContent.trim() === 'Bairros de Garça-SP') {
+            // Evita duplicar
+            if (label.nextSibling && label.nextSibling.classList && label.nextSibling.classList.contains('labels-checkbox-container')) return;
+            var container = document.createElement('div');
+            container.className = 'labels-checkbox-container';
+            container.style = 'margin: 2px 0 6px 24px; display: flex; align-items: center;';
+            var checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.id = 'bairros-labels-toggle';
+            checkbox.checked = true;
+            checkbox.style.marginRight = '6px';
+            checkbox.style.transform = 'scale(0.95)';
+            var lbl = document.createElement('label');
+            lbl.htmlFor = 'bairros-labels-toggle';
+            lbl.textContent = 'Labels dos Bairros';
+            lbl.style.fontSize = '12px';
+            lbl.style.fontWeight = '400';
+            lbl.style.margin = '0';
+            container.appendChild(checkbox);
+            container.appendChild(lbl);
+            label.parentNode.insertBefore(container, label.nextSibling);
+            checkbox.addEventListener('change', function() {
+              if (camadaBairros) {
+                camadaBairros.eachLayer(function(l) {
+                  if (l.getTooltip && l.getTooltip()) {
+                    if (checkbox.checked && map.hasLayer(camadaBairros)) {
+                      l.openTooltip();
+                    } else {
+                      l.closeTooltip();
+                    }
+                  }
+                });
+              }
+            });
+          }
+        });
+      }, 800);
+    }, 1500);
+
+    // Função para criar legenda dinâmica
+    function createLegend() {
+      var legend = L.control({position: 'bottomleft'});
+      
+      legend.onAdd = function (map) {
+        var div = L.DomUtil.create('div', 'info legend');
+        div.style.backgroundColor = 'white';
+        div.style.padding = '10px';
+        div.style.borderRadius = '8px';
+        div.style.boxShadow = '0 2px 6px rgba(0,0,0,0.2)';
+        div.style.fontSize = '12px';
+        div.style.minWidth = '200px';
+        div.style.maxHeight = '300px';
+        div.style.overflowY = 'auto';
+        
+        div.innerHTML = '<h4 style="margin: 0 0 10px 0; color: #333; border-bottom: 1px solid #ccc; padding-bottom: 5px;">Legenda</h4>';
+        
+        return div;
+      };
+      
+                    // Função para atualizar a legenda
+       window.updateLegend = function() {
+         var legendDiv = document.querySelector('.info.legend');
+         if (!legendDiv) return;
+         
+         var legendItems = [
+           {name: 'Bairros', color: '#8bc34a', type: 'point', key: 'Bairros de Garça-SP'},
+           {name: 'Hidrografia', color: '#0066cc', type: 'line', key: 'Hidrografia', forceLine: true},
+           {name: 'Malha Rodoviária', color: '#ff0000', type: 'line', key: 'Malha Rodoviária', forceLine: true},
+           {name: 'Vias Municipais', color: '#ff6600', type: 'line', key: 'Vias Municipais', forceLine: true},
+           {name: 'Limite Municipal', color: 'transparent', type: 'polygon', border: '#ffff00', key: 'Limite Municipal de Garça-SP'},
+           {name: 'Concha Acústica', color: '#ffb6c1', type: 'polygon', border: '#ff69b4', key: 'Concha Acústica'},
+           {name: 'Lago Artificial', color: '#b2ebf2', type: 'polygon', border: '#00bcd4', key: 'Lago Artificial'}
+         ];
+         
+         console.log('Itens da legenda definidos:', legendItems.map(item => item.name + ' (' + item.type + ')'));
+         
+         console.log('Legenda atualizada - Itens:', legendItems.map(item => item.name + ' (' + item.type + ')'));
+         
+                    // Adicionar legenda detalhada da litologia se estiver visível
+           if (overlays['Litologia de Garça-SP'] && map.hasLayer(overlays['Litologia de Garça-SP'])) {
+             // Adicionar título da litologia
+             legendItems.push({
+               name: 'LITOLOGIA',
+               color: '#333',
+               type: 'title',
+               key: 'litologia-title'
+             });
+             
+             // Verificar quais litologias existem nos dados
+             var camadaLitologia = overlays['Litologia de Garça-SP'];
+             var litologiasEncontradas = new Set();
+             
+             if (camadaLitologia) {
+               camadaLitologia.eachLayer(function(layer) {
+                 if (layer.feature && layer.feature.properties) {
+                   var properties = layer.feature.properties;
+                   var nome = properties.NOME_UNIDA || 
+                              properties.NOME || 
+                              properties.FORMACAO || 
+                              properties.LITOLOGIA || 
+                              properties.TIPO_ROCHA ||
+                              properties.DESCRICAO ||
+                              properties.UNIDADE ||
+                              properties.GRUPO ||
+                              properties.SUBGRUPO ||
+                              properties.ESTRATO ||
+                              properties.CAMADA;
+                   if (nome) {
+                     litologiasEncontradas.add(nome);
+                   }
+                 }
+               });
+             }
+             
+             // Simplificar nomes para a legenda
+             var nomesSimplificados = {
+               'Formação Marília': 'Marília',
+               'Formação Vale do Rio do Peixe': 'Vale do Rio do Peixe',
+               'Formação Adamantina': 'Adamantina',
+               'Formação Araçatuba': 'Araçatuba',
+               'Formação Bauru': 'Bauru',
+               'Formação Itararé': 'Itararé',
+               'Formação Tatuí': 'Tatuí',
+               'Formação Irati': 'Irati',
+               'Formação Corumbataí': 'Corumbataí',
+               'Formação Pirambóia': 'Pirambóia',
+               'Formação Botucatu': 'Botucatu',
+               // Também incluir nomes sem "Formação" para casos onde já vêm simplificados
+               'Marília': 'Marília',
+               'Vale do Rio do Peixe': 'Vale do Rio do Peixe',
+               'Adamantina': 'Adamantina',
+               'Araçatuba': 'Araçatuba',
+               'Bauru': 'Bauru',
+               'Itararé': 'Itararé',
+               'Tatuí': 'Tatuí',
+               'Irati': 'Irati',
+               'Corumbataí': 'Corumbataí',
+               'Pirambóia': 'Pirambóia',
+               'Botucatu': 'Botucatu'
+             };
+             
+             // Adicionar apenas as litologias encontradas na legenda
+             litologiasEncontradas.forEach(function(litologia) {
+               if (litologiaColors[litologia]) {
+                 var nomeSimplificado = nomesSimplificados[litologia] || litologia;
+                 legendItems.push({
+                   name: nomeSimplificado,
+                   color: litologiaColors[litologia],
+                   type: 'polygon',
+                   border: litologiaColors[litologia],
+                   key: 'litologia-' + litologia,
+                   present: true
+                 });
+               }
+             });
+           }
+           
+           // Adicionar legenda detalhada do aquífero se estiver visível
+           if (overlays['Aquífero de Garça-SP'] && map.hasLayer(overlays['Aquífero de Garça-SP'])) {
+             // Adicionar título do aquífero
+             legendItems.push({
+               name: 'AQUÍFERO',
+               color: '#333',
+               type: 'title',
+               key: 'aquifero-title'
+             });
+             
+             // Adicionar todas as classes de aquífero na legenda
+             var nomesClasses = {
+               'Classe 1s': 'Classe 1s (Alta Produtividade)',
+               'Classe 2s': 'Classe 2s (Média Produtividade)',
+               'Classe 3s': 'Classe 3s (Baixa Produtividade)',
+               'Classe 4s': 'Classe 4s (Muito Baixa Produtividade)',
+               'Classe 1': 'Classe 1 (Alta Produtividade)',
+               'Classe 2': 'Classe 2 (Média Produtividade)',
+               'Classe 3': 'Classe 3 (Baixa Produtividade)',
+               'Classe 4': 'Classe 4 (Muito Baixa Produtividade)'
+             };
+           
+           // Verificar quais classes existem nos dados do aquífero
+           var camadaAquifero = overlays['Aquífero de Garça-SP'];
+           var classesEncontradas = new Set();
+           
+           if (camadaAquifero) {
+             camadaAquifero.eachLayer(function(layer) {
+               if (layer.feature && layer.feature.properties && layer.feature.properties.CLASSE) {
+                 classesEncontradas.add(layer.feature.properties.CLASSE);
+               }
+             });
+           }
+           
+           // Adicionar apenas as classes que existem nos dados
+           console.log('Classes encontradas nos dados:', Array.from(classesEncontradas));
+           classesEncontradas.forEach(function(classe) {
+             if (aquiferoColors[classe]) {
+               console.log('Adicionando classe à legenda:', classe, 'Presente: true');
+               legendItems.push({
+                 name: nomesClasses[classe] || 'Classe ' + classe,
+                 color: aquiferoColors[classe],
+                 type: 'polygon',
+                 border: aquiferoColors[classe],
+                 key: 'aquifero-' + classe,
+                 present: true
+               });
+             }
+           });
+         }
+        
+        var visibleLayers = [];
+        console.log('Verificando itens da legenda:', legendItems.length);
+        legendItems.forEach(function(item) {
+          // Para classificações de litologia, mostrar se a camada de litologia estiver visível
+          if (item.key && item.key.startsWith('litologia-')) {
+            if (overlays['Litologia de Garça-SP'] && map.hasLayer(overlays['Litologia de Garça-SP'])) {
+              console.log('Adicionando litologia à legenda visível:', item.name);
+              visibleLayers.push(item);
+            }
+          } else if (item.key && item.key.startsWith('aquifero-')) {
+            if (overlays['Aquífero de Garça-SP'] && map.hasLayer(overlays['Aquífero de Garça-SP'])) {
+              console.log('Adicionando classificação à legenda visível:', item.name);
+              visibleLayers.push(item);
+            }
+          } else if (overlays[item.key] && map.hasLayer(overlays[item.key])) {
+            console.log('Camada visível detectada:', item.name, 'Tipo:', item.type, 'Key:', item.key);
+            visibleLayers.push(item);
+          } else {
+            // Forçar exibição de camadas específicas que devem sempre aparecer
+            if (item.key === 'Bairros de Garça-SP' ||
+                item.key === 'Limite Municipal de Garça-SP' ||
+                item.key === 'Concha Acústica' || item.key === 'Lago Artificial') {
+              console.log('Forçando exibição de camada:', item.name, 'Tipo:', item.type, 'Key:', item.key);
+              visibleLayers.push(item);
+            }
+          }
+        });
+        console.log('Camadas visíveis na legenda:', visibleLayers.length);
+        console.log('Estado das overlays:', Object.keys(overlays).map(key => key + ': ' + (map.hasLayer(overlays[key]) ? 'VISÍVEL' : 'OCULTA')));
+        console.log('Itens da legenda:', legendItems.map(item => item.name + ' (' + item.type + ') - Key: ' + item.key));
+        
+                 var content = '<h4 style="margin: 0 0 10px 0; color: #333; border-bottom: 1px solid #ccc; padding-bottom: 5px;">Legenda</h4>';
+         
+
+        
+         if (visibleLayers.length === 0) {
+           content += '<p style="color: #666; font-style: italic; margin: 0;">Nenhuma camada visível</p>';
+         } else {
+           visibleLayers.forEach(function(item) {
+             console.log('Processando item da legenda:', item.name, 'Tipo:', item.type, 'Key:', item.key);
+             if (item.key === 'Hidrografia') {
+               console.log('HIDROGRAFIA DETECTADA - Forçando renderização como linha');
+               console.log('Propriedades da hidrografia:', JSON.stringify(item));
+             }
+             var itemDiv = document.createElement('div');
+             itemDiv.style.marginBottom = '8px';
+             itemDiv.style.display = 'flex';
+             itemDiv.style.alignItems = 'center';
+             
+                          // Tratar título do aquífero
+             if (item.type === 'title') {
+               var titleDiv = document.createElement('div');
+               titleDiv.style.marginTop = '10px';
+               titleDiv.style.marginBottom = '5px';
+               titleDiv.style.fontWeight = 'bold';
+               titleDiv.style.fontSize = '12px';
+               titleDiv.style.color = '#333';
+               titleDiv.style.borderBottom = '1px solid #ccc';
+               titleDiv.style.paddingBottom = '3px';
+               titleDiv.textContent = item.name;
+               content += titleDiv.outerHTML;
+             } else {
+               var symbol = document.createElement('div');
+               symbol.style.width = '20px';
+               symbol.style.height = '20px';
+               symbol.style.marginRight = '8px';
+               symbol.style.borderRadius = '2px';
+               
+               if (item.type === 'line' || item.key === 'Hidrografia' || item.forceLine) {
+                 console.log('Renderizando linha para:', item.name, 'Cor:', item.color, 'Key:', item.key);
+                 console.log('Tipo detectado:', item.type, 'ForceLine:', item.forceLine);
+                 
+                 // Criar um elemento específico para linha
+                 symbol.innerHTML = '';
+                 symbol.style.backgroundColor = 'transparent';
+                 symbol.style.border = 'none';
+                 symbol.style.width = '30px';
+                 symbol.style.height = '6px';
+                 symbol.style.marginTop = '7px';
+                 symbol.style.marginBottom = '7px';
+                 symbol.style.position = 'relative';
+                 
+                 // Criar a linha usando um elemento interno
+                 var line = document.createElement('div');
+                 line.style.position = 'absolute';
+                 line.style.top = '50%';
+                 line.style.left = '0';
+                 line.style.right = '0';
+                 line.style.height = '4px';
+                 line.style.backgroundColor = item.color;
+                 line.style.transform = 'translateY(-50%)';
+                 
+                 symbol.appendChild(line);
+                 console.log('Linha criada para hidrografia com cor:', item.color);
+               } else if (item.type === 'polygon') {
+                 symbol.style.backgroundColor = item.color;
+                 // Para Limite Municipal, usar borda mais grossa
+                 if (item.key === 'Limite Municipal de Garça-SP') {
+                   symbol.style.border = '3px solid ' + (item.border || item.color);
+                 } else {
+                   symbol.style.border = '1px solid ' + (item.border || item.color);
+                 }
+               } else if (item.type === 'point') {
+                 symbol.style.backgroundColor = item.color;
+                 symbol.style.border = '1px solid ' + (item.border || '#333');
+                 symbol.style.borderRadius = '50%';
+               }
+               
+               var label = document.createElement('span');
+               label.textContent = item.name;
+               label.style.fontSize = '11px';
+               
+               // Para classes de litologia e aquífero, sempre mostrar em negrito
+               if ((item.key && item.key.startsWith('litologia-') && item.key !== 'litologia-title') ||
+                   (item.key && item.key.startsWith('aquifero-') && item.key !== 'aquifero-title')) {
+                 label.style.color = '#333';
+                 label.style.fontWeight = 'bold';
+               } else {
+                 label.style.color = '#333';
+               }
+               
+               itemDiv.appendChild(symbol);
+               itemDiv.appendChild(label);
+               content += itemDiv.outerHTML;
+             }
+           });
+         }
+        
+        legendDiv.innerHTML = content;
+      }
+      
+      // Atualizar legenda quando camadas são adicionadas/removidas
+      map.on('overlayadd overlayremove', updateLegend);
+      
+                 // Inicializar legenda após carregar todas as camadas
+    setTimeout(updateLegend, 6000);
+    
+    // ===== OTIMIZAÇÕES MOBILE =====
+    
+    // Detectar dispositivo mobile
+    function isMobile() {
+      return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+             window.innerWidth <= 768;
+    }
+    
+    // Detectar orientação
+    function isPortrait() {
+      return window.innerHeight > window.innerWidth;
+    }
+    
+    // Aplicar classe mobile ao body
+    if (isMobile()) {
+      document.body.classList.add('mobile-device');
+    }
+    
+    // Otimizar para orientação
+    function handleOrientationChange() {
+      if (isMobile()) {
+        if (isPortrait()) {
+          document.body.classList.add('portrait');
+          document.body.classList.remove('landscape');
+        } else {
+          document.body.classList.add('landscape');
+          document.body.classList.remove('portrait');
+        }
+        
+        // Redimensionar mapa
+        setTimeout(function() {
+          map.invalidateSize();
+        }, 300);
+      }
+    }
+    
+    // Listener para mudança de orientação
+    window.addEventListener('orientationchange', handleOrientationChange);
+    window.addEventListener('resize', handleOrientationChange);
+    
+    // Executar na inicialização
+    handleOrientationChange();
+    
+    // Otimizar toque para mobile
+    if (isMobile()) {
+      // Desabilitar zoom duplo toque no mapa
+      map.doubleClickZoom.disable();
+      
+      // Aumentar tolerância de toque
+      map.options.tapTolerance = 15;
+      
+      // Otimizar performance de renderização
+      map.options.preferCanvas = true;
+      
+      // Reduzir frequência de atualização em mobile
+      map.options.zoomAnimationDuration = 200;
+      map.options.fadeAnimationDuration = 200;
+      
+      console.log('Otimizações mobile aplicadas');
+    }
+    
+    // Melhorar acessibilidade mobile
+    function enhanceMobileAccessibility() {
+      if (isMobile()) {
+        // Aumentar área de toque dos controles
+        var controls = document.querySelectorAll('.leaflet-control a, .opacity-control, .info.legend');
+        controls.forEach(function(control) {
+          control.style.minHeight = '44px';
+          control.style.minWidth = '44px';
+          control.style.display = 'flex';
+          control.style.alignItems = 'center';
+          control.style.justifyContent = 'center';
+        });
+        
+        // Adicionar feedback tátil
+        var touchElements = document.querySelectorAll('.leaflet-control a, #view-toggle, .opacity-control input[type=range]');
+        touchElements.forEach(function(element) {
+          element.addEventListener('touchstart', function() {
+            this.style.transform = 'scale(0.95)';
+          });
+          
+          element.addEventListener('touchend', function() {
+            this.style.transform = '';
+          });
+        });
+        
+        console.log('Acessibilidade mobile melhorada');
+      }
+    }
+    
+    // Executar otimizações de acessibilidade
+    setTimeout(enhanceMobileAccessibility, 1000);
+    
+    // Prevenir zoom do navegador em inputs
+    var inputs = document.querySelectorAll('input[type=range], input[type=number]');
+    inputs.forEach(function(input) {
+      input.addEventListener('focus', function() {
+        if (isMobile()) {
+          this.style.fontSize = '16px'; // Previne zoom no iOS
+        }
+      });
+    });
+    
+    // Otimizar scroll da legenda em mobile
+    if (isMobile()) {
+      var legend = document.querySelector('.info.legend');
+      if (legend) {
+        legend.style.maxHeight = '60vh';
+        legend.style.overflowY = 'auto';
+        legend.style.webkitOverflowScrolling = 'touch';
+      }
+    }
+    
+    /* Estilos personalizados para popups */
+    var popupStyles = document.createElement('style');
+    popupStyles.textContent = `
+      .leaflet-popup-content-wrapper {
+        background: transparent !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        padding: 0 !important;
+      }
+      
+      .leaflet-popup-content {
+        margin: 0 !important;
+        padding: 0 !important;
+        min-width: 280px !important;
+        max-width: 320px !important;
+      }
+      
+      .leaflet-popup-tip {
+        background: rgba(255, 255, 255, 0.9) !important;
+        backdrop-filter: blur(10px) !important;
+        border: 1px solid rgba(0, 0, 0, 0.1) !important;
+      }
+      
+      .leaflet-popup-close-button {
+        background: rgba(255, 255, 255, 0.9) !important;
+        backdrop-filter: blur(10px) !important;
+        border: 1px solid rgba(0, 0, 0, 0.1) !important;
+        border-radius: 50% !important;
+        width: 24px !important;
+        height: 24px !important;
+        font-size: 16px !important;
+        font-weight: bold !important;
+        color: #666 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        top: 8px !important;
+        right: 8px !important;
+        transition: all 0.2s ease !important;
+      }
+      
+      .leaflet-popup-close-button:hover {
+        background: rgba(255, 255, 255, 1) !important;
+        color: #333 !important;
+        transform: scale(1.1) !important;
+      }
+      
+      @media (max-width: 768px) {
+        .leaflet-popup-content {
+          min-width: 260px !important;
+          max-width: 300px !important;
+        }
+      }
+      
+      @media (max-width: 480px) {
+        .leaflet-popup-content {
+          min-width: 240px !important;
+          max-width: 280px !important;
+        }
+      }
+    `;
+    document.head.appendChild(popupStyles);
+      
+      return legend;
+    }
+    
+    // Adicionar legenda ao mapa
+    var legend = createLegend();
+    legend.addTo(map);
+
+    // Guardar referência das camadas para alterar opacidade depois
+    var camadaLitologia, camadaAquifero, camadaHidro, camadaLimite, camadaConcha, camadaLago, camadaMalhaRodoviaria, camadaViasAcesso, camadaBairros;
+
+    // Função para gerar popup HTML moderno e visual
+    function popupTableByLayer(properties, layerName) {
+      // Configurações específicas por camada
+      const layerConfigs = {
+        'Limite Municipal de Garça-SP': {
+          icon: '🏛️',
+          title: 'Município',
+          fields: ['nm_nome', 'UF', 'populacao2', 'area_ofici'],
+          labels: ['Nome', 'UF', 'População', 'Área (km²)'],
+          color: '#667eea'
+        },
+        'Litologia de Garça-SP': {
+          icon: '🗿',
+          title: 'Litologia',
+          fields: ['NOME_UNIDA', 'SIGLA_UNID', 'CLASSE_RX1', 'LITOTIPO1'],
+          labels: ['Unidade', 'Sigla', 'Classe', 'Tipo'],
+          color: '#ffd700'
+        },
+        'Aquífero de Garça-SP': {
+          icon: '💧',
+          title: 'Aquífero',
+          fields: ['NOME_AQUI', 'CLASSE', 'INT_VAZÃO', 'TIPO_CARAC'],
+          labels: ['Nome', 'Classe', 'Vazão', 'Característica'],
+          color: '#00bcd4'
+        },
+        'Hidrografia': {
+          icon: '🌊',
+          title: 'Hidrografia',
+          fields: ['NOME', 'TIPO', 'CLASSE'],
+          labels: ['Nome', 'Tipo', 'Classe'],
+          color: '#0066cc'
+        },
+        'Malha Rodoviária': {
+          icon: '🛣️',
+          title: 'Rodovia',
+          fields: ['Rodovia', 'Origem', 'Municipio', 'Regional'],
+          labels: ['Rodovia', 'Origem', 'Município', 'Regional'],
+          color: '#ff0000'
+        },
+        'Vias Municipais': {
+          icon: '🛤️',
+          title: 'Via Municipal',
+          fields: ['NOME', 'TIPO', 'CODIGO'],
+          labels: ['Nome', 'Tipo', 'Código'],
+          color: '#ff6600'
+        },
+        'Bairros de Garça-SP': {
+          icon: '🏘️',
+          title: 'Bairro',
+          fields: ['name'],
+          labels: ['Nome'],
+          color: '#8bc34a'
+        },
+        'Concha Acústica': {
+          icon: '🎵',
+          title: 'Concha Acústica',
+          fields: ['id'],
+          labels: ['ID'],
+          color: '#ff69b4'
+        },
+        'Lago Artificial': {
+          icon: '🏊',
+          title: 'Lago Artificial',
+          fields: ['id'],
+          labels: ['ID'],
+          color: '#00bcd4'
+        }
+      };
+      
+      const config = layerConfigs[layerName] || {
+        icon: '📍',
+        title: layerName,
+        fields: Object.keys(properties).slice(0, 4),
+        labels: Object.keys(properties).slice(0, 4).map(f => f.charAt(0).toUpperCase() + f.slice(1)),
+        color: '#666'
+      };
+      
+      // Filtrar campos que têm dados
+      const validFields = [];
+      const validLabels = [];
+      
+      for (let i = 0; i < config.fields.length; i++) {
+        const field = config.fields[i];
+        const value = properties[field];
+        if (value !== undefined && value !== null && value !== '' && value !== 'null') {
+          validFields.push(field);
+          validLabels.push(config.labels[i]);
+        }
+      }
+      
+      // Se não há campos válidos, mostrar campos genéricos
+      if (validFields.length === 0) {
+        const allFields = Object.keys(properties).slice(0, 3);
+        allFields.forEach(field => {
+          validFields.push(field);
+          validLabels.push(field.charAt(0).toUpperCase() + field.slice(1));
+        });
+      }
+      
+      // Gerar HTML moderno
+      let html = `
+                 <div style="
+           font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+           max-width: 280px;
+           background: linear-gradient(135deg, ${config.color}40 0%, ${config.color}20 100%);
+           border-radius: 12px;
+           border: 1px solid ${config.color}50;
+           padding: 0;
+           margin: 0;
+           box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+           backdrop-filter: blur(10px);
+         ">
+          <!-- Header -->
+          <div style="
+            background: linear-gradient(135deg, ${config.color} 0%, ${config.color}dd 100%);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 12px 12px 0 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            font-size: 14px;
+          ">
+            <span style="font-size: 16px;">${config.icon}</span>
+            <span>${config.title}</span>
+          </div>
+          
+          <!-- Content -->
+          <div style="padding: 12px 16px;">
+      `;
+      
+      if (validFields.length > 0) {
+        validFields.forEach((field, index) => {
+          const label = validLabels[index];
+          const value = properties[field];
+          
+          html += `
+            <div style="
+              display: flex;
+              justify-content: space-between;
+              align-items: flex-start;
+              padding: 6px 0;
+              border-bottom: 1px solid ${config.color}15;
+              font-size: 13px;
+            ">
+                             <span style="
+                 color: #ffffff;
+                 font-weight: 600;
+                 min-width: 80px;
+                 flex-shrink: 0;
+                 text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+               ">${label}:</span>
+               <span style="
+                 color: #ffffff;
+                 font-weight: 500;
+                 text-align: right;
+                 word-break: break-word;
+                 margin-left: 8px;
+                 text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+               ">${value}</span>
+            </div>
+          `;
+        });
+      } else {
+                 html += `
+           <div style="
+             text-align: center;
+             color: #ffffff;
+             font-style: italic;
+             padding: 12px 0;
+             font-size: 13px;
+             text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+           ">
+             Sem informações disponíveis
+           </div>
+         `;
+      }
+      
+      html += `
+          </div>
+        </div>
+      `;
+      
+      return html;
+    }
+
+    // Função para atualizar opacidade das camadas
+    function setLayerOpacity(layer, fillOpacity, lineOpacity) {
+      if (!layer) return;
+      layer.eachLayer(function (l) {
+        if (l.setStyle) {
+          var style = {};
+          if (typeof fillOpacity === 'number') style.fillOpacity = fillOpacity;
+          if (typeof lineOpacity === 'number') style.opacity = lineOpacity;
+          l.setStyle(style);
+        }
+      });
+    }
+
+    // Listeners dos sliders
+    setTimeout(function() {
+      document.getElementById('opacity-litologia').addEventListener('input', function(e) {
+        setLayerOpacity(camadaLitologia, parseFloat(e.target.value), undefined);
+      });
+      document.getElementById('opacity-aquifero').addEventListener('input', function(e) {
+        setLayerOpacity(camadaAquifero, parseFloat(e.target.value), undefined);
+      });
+      document.getElementById('opacity-hidro').addEventListener('input', function(e) {
+        setLayerOpacity(camadaHidro, undefined, parseFloat(e.target.value));
+      });
+    }, 1000);
+
+    // Zoom botões
+    document.getElementById('zoom-in-btn').onclick = function() { map.zoomIn(); };
+    document.getElementById('zoom-out-btn').onclick = function() { map.zoomOut(); };
+
+    // Modal Sobre
+    document.getElementById('about-btn').onclick = function() {
+      document.getElementById('about-modal').classList.remove('modal-hidden');
+    };
+    document.getElementById('close-modal').onclick = function() {
+      document.getElementById('about-modal').classList.add('modal-hidden');
+    };
+    // Fechar modal ao clicar fora do conteúdo
+    document.getElementById('about-modal').onclick = function(e) {
+      if (e.target === this) this.classList.add('modal-hidden');
+    };
+    
+    // FASE 2 - Funcionalidade Fullscreen
+    var isFullscreen = false;
+    var fullscreenBtn = document.getElementById('fullscreen-btn');
+    var fullscreenBtnText = document.querySelector('.fullscreen-btn-text');
+    var fullscreenBtnIcon = document.querySelector('.fullscreen-btn-icon');
+    var mapContainer = document.getElementById('map');
+    var titleBar = document.getElementById('map-title-bar');
+    
+    function toggleFullscreen() {
+      if (!isFullscreen) {
+        // Entrar em fullscreen
+        if (mapContainer.requestFullscreen) {
+          mapContainer.requestFullscreen();
+        } else if (mapContainer.webkitRequestFullscreen) {
+          mapContainer.webkitRequestFullscreen();
+        } else if (mapContainer.msRequestFullscreen) {
+          mapContainer.msRequestFullscreen();
+        }
+        
+        // Ocultar apenas o texto do título, mantendo os controles
+        var titleText = document.getElementById('map-title-text');
+        if (titleText) titleText.style.display = 'none';
+        
+        // Atualizar botão
+        fullscreenBtnIcon.textContent = '⛶';
+        fullscreenBtn.title = 'Sair da Tela Cheia';
+        
+        isFullscreen = true;
+      } else {
+        // Sair do fullscreen
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+          document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) {
+          document.msExitFullscreen();
+        }
+        
+        // Mostrar o texto do título novamente
+        var titleText = document.getElementById('map-title-text');
+        if (titleText) titleText.style.display = 'inline';
+        
+        // Atualizar botão
+        fullscreenBtnIcon.textContent = '⛶';
+        fullscreenBtn.title = 'Tela Cheia';
+        
+        isFullscreen = false;
+      }
+    }
+    
+    // Event listener para o botão fullscreen
+    fullscreenBtn.onclick = toggleFullscreen;
+    
+    // Event listeners para detectar mudanças no fullscreen
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+    document.addEventListener('msfullscreenchange', handleFullscreenChange);
+    
+    function handleFullscreenChange() {
+      if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
+        // Saiu do fullscreen
+        var titleText = document.getElementById('map-title-text');
+        if (titleText) titleText.style.display = 'inline';
+        fullscreenBtnIcon.textContent = '⛶';
+        fullscreenBtn.title = 'Tela Cheia';
+        isFullscreen = false;
+      }
+    }
+    
+    // FASE 2 - Mini-mapa (Overview Map)
+    var miniMap = null;
+    var miniMapContainer = document.getElementById('mini-map-container');
+    var miniMapToggle = document.getElementById('mini-map-toggle');
+    var miniMapVisible = true; // Começar visível
+    
+    function initMiniMap() {
+      console.log('Iniciando mini-mapa...');
+      
+      // Criar mini-mapa com OpenStreetMap como basemap
+      miniMap = L.map('mini-map', {
+        zoomControl: false,
+        attributionControl: false,
+        dragging: true,
+        touchZoom: true,
+        scrollWheelZoom: false,
+        doubleClickZoom: false,
+        boxZoom: false,
+        keyboard: false,
+        tap: false
+      });
+      
+      console.log('Mini-mapa criado:', miniMap);
+      
+      // Adicionar basemap OpenStreetMap
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 18
+      }).addTo(miniMap);
+      
+      console.log('Basemap adicionado ao mini-mapa');
+      
+      // Definir view inicial (região de Garça-SP)
+      miniMap.setView([-22.2125, -49.6564], 10);
+      
+      console.log('View inicial definida');
+      
+      // Adicionar retângulo que mostra a área visível no mapa principal
+      var bounds = map.getBounds();
+      var overviewRect = L.rectangle(bounds, {
+        color: '#ff0000',
+        weight: 2,
+        fillColor: '#ff0000',
+        fillOpacity: 0.1
+      }).addTo(miniMap);
+      
+      // Adicionar marcador central para mostrar o centro do mapa principal
+      var centerMarker = L.circleMarker(map.getCenter(), {
+        radius: 4,
+        color: '#ff0000',
+        fillColor: '#ff0000',
+        fillOpacity: 0.8,
+        weight: 1
+      }).addTo(miniMap);
+      
+      console.log('Retângulo e marcador adicionados');
+      
+      // Atualizar retângulo e marcador quando o mapa principal mudar
+      map.on('moveend', function() {
+        var newBounds = map.getBounds();
+        var newCenter = map.getCenter();
+        overviewRect.setBounds(newBounds);
+        centerMarker.setLatLng(newCenter);
+      });
+      
+      // Atualizar também durante o movimento (mais fluido)
+      map.on('move', function() {
+        var newBounds = map.getBounds();
+        var newCenter = map.getCenter();
+        overviewRect.setBounds(newBounds);
+        centerMarker.setLatLng(newCenter);
+      });
+      
+      // Permitir navegação no mini-mapa com arrastar
+      miniMap.on('mousedown', function(e) {
+        var clickedLatLng = e.latlng;
+        map.setView(clickedLatLng, map.getZoom());
+      });
+      
+      // Permitir zoom no mini-mapa
+      miniMap.on('wheel', function(e) {
+        e.originalEvent.preventDefault();
+        var zoom = map.getZoom();
+        if (e.originalEvent.deltaY < 0) {
+          map.setZoom(zoom + 1);
+        } else {
+          map.setZoom(zoom - 1);
+        }
+      });
+      
+      // Sincronizar zoom entre os mapas
+      map.on('zoomend', function() {
+        var currentZoom = map.getZoom();
+        var miniMapZoom = miniMap.getZoom();
+        
+        // Ajustar zoom do mini-mapa para manter contexto
+        if (currentZoom > 12) {
+          miniMap.setZoom(10);
+        } else if (currentZoom > 8) {
+          miniMap.setZoom(8);
+        } else {
+          miniMap.setZoom(6);
+        }
+      });
+      
+      console.log('Mini-mapa inicializado com sucesso');
+    }
+    
+    function toggleMiniMap() {
+      if (!miniMapVisible) {
+        // Mostrar mini-mapa
+        miniMapContainer.style.display = 'block';
+        miniMapToggle.textContent = '🗺️ Ocultar';
+        miniMapToggle.title = 'Ocultar Mini Mapa';
+        miniMapVisible = true;
+        
+        // Inicializar mini-mapa se ainda não foi criado
+        if (!miniMap) {
+          setTimeout(initMiniMap, 100);
+        } else {
+          miniMap.invalidateSize();
+        }
+      } else {
+        // Ocultar mini-mapa
+        miniMapContainer.style.display = 'none';
+        miniMapToggle.textContent = '🗺️ Mostrar';
+        miniMapToggle.title = 'Mostrar Mini Mapa';
+        miniMapVisible = false;
+      }
+    }
+    
+    // Event listener para o botão do mini-mapa
+    miniMapToggle.onclick = toggleMiniMap;
+    
+    // Inicializar mini-mapa automaticamente quando o WebGIS carregar
+    setTimeout(function() {
+      if (miniMapVisible && !miniMap) {
+        initMiniMap();
+        miniMapToggle.textContent = '🗺️ Ocultar';
+        miniMapToggle.title = 'Ocultar Mini Mapa';
+        miniMapContainer.style.display = 'block'; // Garantir que está visível
+      }
+    }, 2000);
+    
+    // Garantir que o mini-mapa seja inicializado mesmo se houver atraso
+    setTimeout(function() {
+      if (miniMapVisible && !miniMap) {
+        console.log('Inicializando mini-mapa com atraso...');
+        initMiniMap();
+        miniMapToggle.textContent = '🗺️ Ocultar';
+        miniMapToggle.title = 'Ocultar Mini Mapa';
+        miniMapContainer.style.display = 'block';
+      }
+    }, 3000);
+
+    // FASE 3 - Ferramentas de Medição Avançadas
+    var measurementPanel = document.getElementById('measurement-panel');
+    var measurementToggle = document.getElementById('measurement-toggle');
+    var currentMeasurementTool = null;
+    var measurementLayers = [];
+    var measurementPoints = [];
+    var measurementLines = [];
+    var measurementPolygons = [];
+    var coordinateMarkers = [];
+    var measurementResults = []; // Array para armazenar resultados
+    var measurementHistory = []; // Histórico de medições
+    var measurementSettings = {
+      units: 'metric', // 'metric' ou 'imperial'
+      precision: 3, // Casas decimais
+      showCoordinates: true,
+      autoSave: true
+    };
+    
+    // Toggle do painel de medição
+    measurementToggle.onclick = function() {
+      if (measurementPanel.style.display === 'none' || measurementPanel.style.display === '') {
+        measurementPanel.style.display = 'block';
+        measurementToggle.style.background = '#bbdefb';
+      } else {
+        measurementPanel.style.display = 'none';
+        measurementToggle.style.background = '#e3f2fd';
+        deactivateAllTools();
+      }
+    };
+    
+    // Funções utilitárias para medições
+    function formatDistance(meters) {
+      if (measurementSettings.units === 'metric') {
+        if (meters >= 1000) {
+          return (meters / 1000).toFixed(measurementSettings.precision) + ' km';
+        } else {
+          return meters.toFixed(measurementSettings.precision) + ' m';
+        }
+      } else {
+        var feet = meters * 3.28084;
+        if (feet >= 5280) {
+          return (feet / 5280).toFixed(measurementSettings.precision) + ' mi';
+        } else {
+          return feet.toFixed(measurementSettings.precision) + ' ft';
+        }
+      }
+    }
+    
+    function formatArea(squareMeters) {
+      if (measurementSettings.units === 'metric') {
+        if (squareMeters >= 1000000) {
+          return (squareMeters / 1000000).toFixed(measurementSettings.precision) + ' km²';
+        } else if (squareMeters >= 10000) {
+          return (squareMeters / 10000).toFixed(measurementSettings.precision) + ' ha';
+        } else {
+          return squareMeters.toFixed(measurementSettings.precision) + ' m²';
+        }
+      } else {
+        var squareFeet = squareMeters * 10.7639;
+        if (squareFeet >= 43560) {
+          return (squareFeet / 43560).toFixed(measurementSettings.precision) + ' ac';
+        } else {
+          return squareFeet.toFixed(measurementSettings.precision) + ' ft²';
+        }
+      }
+    }
+    
+    function formatCoordinates(latlng) {
+      var lat = latlng.lat.toFixed(6);
+      var lng = latlng.lng.toFixed(6);
+      return 'Lat: ' + lat + '° | Long: ' + lng + '°';
+    }
+    
+    function saveMeasurementResult(type, data) {
+      var result = {
+        id: Date.now(),
+        type: type,
+        data: data,
+        timestamp: new Date().toISOString(),
+        coordinates: data.coordinates || []
+      };
+      
+      measurementResults.push(result);
+      measurementHistory.push(result);
+      
+      // Limitar histórico a 50 medições
+      if (measurementHistory.length > 50) {
+        measurementHistory.shift();
+      }
+      
+      console.log('Medição salva:', result);
+      return result;
+    }
+    
+    function createMeasurementMarker(latlng, index, type) {
+      var colors = {
+        distance: '#ff4444',
+        area: '#44ff44',
+        angle: '#4444ff',
+        coordinate: '#ffaa44'
+      };
+      
+      var icon = L.divIcon({
+        className: 'measurement-marker',
+        html: '<div style="background: ' + colors[type] + '; color: white; border-radius: 50%; width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: bold; border: 2px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.3);">' + index + '</div>',
+        iconSize: [14, 14]
+      });
+      
+      return L.marker(latlng, {icon: icon});
+    }
+    
+    // Desativar todas as ferramentas
+    function deactivateAllTools() {
+      // Remover event listener se houver uma ferramenta ativa
+      if (currentMeasurementTool && currentMeasurementTool.clickHandler) {
+        map.off('click', currentMeasurementTool.clickHandler);
+      }
+      
+      // Limpar qualquer event listener residual
+      map.off('click');
+      
+      currentMeasurementTool = null;
+      document.querySelectorAll('.measurement-btn').forEach(btn => btn.classList.remove('active'));
+      map.getContainer().style.cursor = '';
+      
+      console.log('Ferramentas desativadas');
+    }
+    
+    // Medidor de Distância
+    document.getElementById('distance-btn').onclick = function() {
+      deactivateAllTools();
+      
+      // Aguardar um momento para garantir que os event listeners foram limpos
+      setTimeout(function() {
+        document.getElementById('distance-btn').classList.add('active');
+        map.getContainer().style.cursor = 'crosshair';
+      
+      var points = [];
+      var line;
+      var totalDistance = 0;
+      var clickHandler;
+      
+      clickHandler = function(e) {
+        // Prevenir propagação do evento para evitar conflitos
+        L.DomEvent.stopPropagation(e);
+        L.DomEvent.preventDefault(e);
+        
+        // Verificar se o clique foi realmente no mapa
+        if (!e.latlng) {
+          console.log('Clique sem coordenadas válidas');
+          return;
+        }
+        
+        console.log('Clique registrado em:', e.latlng.lat, e.latlng.lng);
+        
+        points.push(e.latlng);
+        
+        // Criar marcador com nova função
+        var marker = createMeasurementMarker(e.latlng, points.length, 'distance').addTo(map);
+        measurementPoints.push(marker);
+        
+        // Criar linha se houver mais de um ponto
+        if (points.length > 1) {
+          if (line) map.removeLayer(line);
+          line = L.polyline(points, {
+            color: '#ff4444', 
+            weight: 3, 
+            opacity: 0.8,
+            dashArray: '5, 5'
+          }).addTo(map);
+          measurementLines.push(line);
+          
+          // Calcular distância
+          var distance = points[points.length - 2].distanceTo(points[points.length - 1]);
+          totalDistance += distance;
+          
+          // Criar popup com informações detalhadas
+          var popupContent = '<div style="min-width: 200px;">' +
+            '<h4 style="margin: 0 0 8px 0; color: #ff4444;">📏 Medição de Distância</h4>' +
+            '<p><strong>Distância Total:</strong> ' + formatDistance(totalDistance) + '</p>' +
+            '<p><strong>Segmento:</strong> ' + formatDistance(distance) + '</p>' +
+            '<p><strong>Pontos:</strong> ' + points.length + '</p>';
+          
+          if (measurementSettings.showCoordinates) {
+            popupContent += '<p><strong>Coordenadas:</strong><br>' + formatCoordinates(e.latlng) + '</p>';
+          }
+          
+          popupContent += '<p style="font-size: 11px; color: #666; margin-top: 8px;">Clique duplo para finalizar</p></div>';
+          
+          var popup = L.popup()
+            .setLatLng(e.latlng)
+            .setContent(popupContent)
+            .openOn(map);
+        }
+      };
+      
+      // Adicionar duplo clique para finalizar
+      var doubleClickHandler = function(e) {
+        if (points.length >= 2) {
+          L.DomEvent.stopPropagation(e);
+          L.DomEvent.preventDefault(e);
+          
+          // Salvar resultado
+          var result = saveMeasurementResult('distance', {
+            totalDistance: totalDistance,
+            points: points,
+            coordinates: points.map(p => [p.lat, p.lng])
+          });
+          
+          // Mostrar popup final
+          var finalPopupContent = '<div style="min-width: 220px;">' +
+            '<h4 style="margin: 0 0 8px 0; color: #ff4444;">✅ Medição Concluída</h4>' +
+            '<p><strong>Distância Total:</strong> ' + formatDistance(totalDistance) + '</p>' +
+            '<p><strong>Pontos:</strong> ' + points.length + '</p>' +
+            '<p><strong>ID:</strong> ' + result.id + '</p>' +
+            '<p style="font-size: 11px; color: #666; margin-top: 8px;">Medição salva no histórico</p></div>';
+          
+          L.popup()
+            .setLatLng(points[points.length - 1])
+            .setContent(finalPopupContent)
+            .openOn(map);
+          
+          // Desativar ferramenta
+          deactivateAllTools();
+        }
+      };
+      
+      // Usar uma abordagem mais específica para capturar cliques
+      map.on('click', clickHandler, { passive: false });
+      map.on('dblclick', doubleClickHandler, { passive: false });
+      
+      // Armazenar referência para poder remover o event listener
+      currentMeasurementTool = {
+        type: 'distance',
+        clickHandler: clickHandler,
+        doubleClickHandler: doubleClickHandler
+      };
+      }, 100);
+    };
+    
+    // Medidor de Área
+    document.getElementById('area-btn').onclick = function() {
+      deactivateAllTools();
+      
+      // Aguardar um momento para garantir que os event listeners foram limpos
+      setTimeout(function() {
+        document.getElementById('area-btn').classList.add('active');
+        map.getContainer().style.cursor = 'crosshair';
+      
+      var points = [];
+      var polygon;
+      var totalArea = 0;
+      var clickHandler;
+      
+      clickHandler = function(e) {
+        // Prevenir propagação do evento para evitar conflitos
+        L.DomEvent.stopPropagation(e);
+        L.DomEvent.preventDefault(e);
+        
+        // Verificar se o clique foi realmente no mapa
+        if (!e.latlng) {
+          console.log('Clique sem coordenadas válidas');
+          return;
+        }
+        
+        console.log('Clique registrado em:', e.latlng.lat, e.latlng.lng);
+        
+        points.push(e.latlng);
+        
+        // Criar marcador com nova função
+        var marker = createMeasurementMarker(e.latlng, points.length, 'area').addTo(map);
+        measurementPoints.push(marker);
+        
+        // Criar polígono se houver mais de 2 pontos
+        if (points.length > 2) {
+          if (polygon) map.removeLayer(polygon);
+          polygon = L.polygon(points, {
+            color: '#44ff44', 
+            weight: 2, 
+            fillColor: '#44ff44', 
+            fillOpacity: 0.3,
+            dashArray: '5, 5'
+          }).addTo(map);
+          measurementPolygons.push(polygon);
+          
+          // Calcular área (aproximação simples)
+          totalArea = calculatePolygonArea(points);
+          
+          // Criar popup com informações detalhadas
+          var popupContent = '<div style="min-width: 200px;">' +
+            '<h4 style="margin: 0 0 8px 0; color: #44ff44;">🔲 Medição de Área</h4>' +
+            '<p><strong>Área:</strong> ' + formatArea(totalArea) + '</p>' +
+            '<p><strong>Pontos:</strong> ' + points.length + '</p>';
+          
+          if (measurementSettings.showCoordinates) {
+            popupContent += '<p><strong>Coordenadas:</strong><br>' + formatCoordinates(e.latlng) + '</p>';
+          }
+          
+          popupContent += '<p style="font-size: 11px; color: #666; margin-top: 8px;">Clique duplo para finalizar</p></div>';
+          
+          var popup = L.popup()
+            .setLatLng(e.latlng)
+            .setContent(popupContent)
+            .openOn(map);
+        }
+      };
+      
+      // Adicionar duplo clique para finalizar
+      var doubleClickHandler = function(e) {
+        if (points.length >= 3) {
+          L.DomEvent.stopPropagation(e);
+          L.DomEvent.preventDefault(e);
+          
+          // Salvar resultado
+          var result = saveMeasurementResult('area', {
+            totalArea: totalArea,
+            points: points,
+            coordinates: points.map(p => [p.lat, p.lng])
+          });
+          
+          // Mostrar popup final
+          var finalPopupContent = '<div style="min-width: 220px;">' +
+            '<h4 style="margin: 0 0 8px 0; color: #44ff44;">✅ Medição Concluída</h4>' +
+            '<p><strong>Área Total:</strong> ' + formatArea(totalArea) + '</p>' +
+            '<p><strong>Pontos:</strong> ' + points.length + '</p>' +
+            '<p><strong>ID:</strong> ' + result.id + '</p>' +
+            '<p style="font-size: 11px; color: #666; margin-top: 8px;">Medição salva no histórico</p></div>';
+          
+          L.popup()
+            .setLatLng(points[points.length - 1])
+            .setContent(finalPopupContent)
+            .openOn(map);
+          
+          // Desativar ferramenta
+          deactivateAllTools();
+        }
+      };
+      
+      // Usar uma abordagem mais específica para capturar cliques
+      map.on('click', clickHandler, { passive: false });
+      map.on('dblclick', doubleClickHandler, { passive: false });
+      
+      // Armazenar referência para poder remover o event listener
+      currentMeasurementTool = {
+        type: 'area',
+        clickHandler: clickHandler,
+        doubleClickHandler: doubleClickHandler
+      };
+      }, 100);
+    };
+    
+    // Medidor de Ângulo
+    document.getElementById('angle-btn').onclick = function() {
+      deactivateAllTools();
+      
+      // Aguardar um momento para garantir que os event listeners foram limpos
+      setTimeout(function() {
+        document.getElementById('angle-btn').classList.add('active');
+        map.getContainer().style.cursor = 'crosshair';
+      
+      var points = [];
+      var lines = [];
+      var clickHandler;
+      
+      clickHandler = function(e) {
+        // Prevenir propagação do evento para evitar conflitos
+        L.DomEvent.stopPropagation(e);
+        L.DomEvent.preventDefault(e);
+        
+        // Verificar se o clique foi realmente no mapa
+        if (!e.latlng) {
+          console.log('Clique sem coordenadas válidas');
+          return;
+        }
+        
+        console.log('Clique registrado em:', e.latlng.lat, e.latlng.lng);
+        
+        points.push(e.latlng);
+        
+        // Criar marcador
+        var marker = L.marker(e.latlng, {
+          icon: L.divIcon({
+            className: 'measurement-marker',
+            html: '<div style="background: #4444ff; color: white; border-radius: 50%; width: 12px; height: 12px; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: bold;">' + points.length + '</div>',
+            iconSize: [12, 12]
+          })
+        }).addTo(map);
+        
+        measurementPoints.push(marker);
+        
+        // Criar linha se houver mais de um ponto
+        if (points.length > 1) {
+          var line = L.polyline([points[points.length - 2], points[points.length - 1]], {color: '#4444ff', weight: 2, opacity: 0.8}).addTo(map);
+          lines.push(line);
+          measurementLines.push(line);
+          
+          // Calcular ângulo se houver 3 pontos
+          if (points.length === 3) {
+            var angle = calculateAngle(points[0], points[1], points[2]);
+            
+            // Adicionar popup com ângulo
+            var popup = L.popup()
+              .setLatLng(e.latlng)
+              .setContent('Ângulo: ' + angle.toFixed(1) + '°')
+              .openOn(map);
+          }
+        }
+      };
+      
+      // Usar uma abordagem mais específica para capturar cliques
+      map.on('click', clickHandler, { passive: false });
+      
+      // Armazenar referência para poder remover o event listener
+      currentMeasurementTool = {
+        type: 'angle',
+        clickHandler: clickHandler
+      };
+      }, 100);
+    };
+    
+    // Coletor de Coordenadas
+    document.getElementById('coordinate-btn').onclick = function() {
+      deactivateAllTools();
+      
+      // Aguardar um momento para garantir que os event listeners foram limpos
+      setTimeout(function() {
+        document.getElementById('coordinate-btn').classList.add('active');
+        map.getContainer().style.cursor = 'crosshair';
+      
+      var clickHandler;
+      
+      clickHandler = function(e) {
+        // Prevenir propagação do evento para evitar conflitos
+        L.DomEvent.stopPropagation(e);
+        L.DomEvent.preventDefault(e);
+        
+        // Verificar se o clique foi realmente no mapa
+        if (!e.latlng) {
+          console.log('Clique sem coordenadas válidas');
+          return;
+        }
+        
+        console.log('Clique registrado em:', e.latlng.lat, e.latlng.lng);
+        
+        var lat = e.latlng.lat.toFixed(6);
+        var lng = e.latlng.lng.toFixed(6);
+        
+        // Criar marcador
+        var marker = L.marker(e.latlng, {
+          icon: L.divIcon({
+            className: 'coordinate-marker',
+            html: '<div style="background: #ff8800; color: white; border-radius: 50%; width: 12px; height: 12px; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: bold;">📍</div>',
+            iconSize: [12, 12]
+          })
+        }).addTo(map);
+        
+        coordinateMarkers.push(marker);
+        
+        // Adicionar popup com coordenadas
+        var popup = L.popup()
+          .setLatLng(e.latlng)
+          .setContent('Lat: ' + lat + '<br>Long: ' + lng)
+          .openOn(map);
+      };
+      
+      // Usar uma abordagem mais específica para capturar cliques
+      map.on('click', clickHandler, { passive: false });
+      
+      // Armazenar referência para poder remover o event listener
+      currentMeasurementTool = {
+        type: 'coordinate',
+        clickHandler: clickHandler
+      };
+      }, 100);
+    };
+    
+    // Limpar Medições
+    document.getElementById('clear-measurements-btn').onclick = function() {
+      console.log('Limpar medições clicado');
+      console.log('Marcadores de medição:', measurementPoints.length);
+      console.log('Linhas de medição:', measurementLines.length);
+      console.log('Polígonos de medição:', measurementPolygons.length);
+      console.log('Marcadores de coordenadas:', coordinateMarkers.length);
+      
+      // Remover todos os marcadores de medição
+      if (measurementPoints && measurementPoints.length > 0) {
+        measurementPoints.forEach(function(marker) {
+          if (marker && map.hasLayer(marker)) {
+            map.removeLayer(marker);
+          }
+        });
+        measurementPoints = [];
+      }
+      
+      // Remover todas as linhas de medição
+      if (measurementLines && measurementLines.length > 0) {
+        measurementLines.forEach(function(line) {
+          if (line && map.hasLayer(line)) {
+            map.removeLayer(line);
+          }
+        });
+        measurementLines = [];
+      }
+      
+      // Remover todos os polígonos de medição
+      if (measurementPolygons && measurementPolygons.length > 0) {
+        measurementPolygons.forEach(function(polygon) {
+          if (polygon && map.hasLayer(polygon)) {
+            map.removeLayer(polygon);
+          }
+        });
+        measurementPolygons = [];
+      }
+      
+      // Remover todos os marcadores de coordenadas
+      if (coordinateMarkers && coordinateMarkers.length > 0) {
+        coordinateMarkers.forEach(function(marker) {
+          if (marker && map.hasLayer(marker)) {
+            map.removeLayer(marker);
+          }
+        });
+        coordinateMarkers = [];
+      }
+      
+      // Fechar qualquer popup aberto
+      map.closePopup();
+      
+      deactivateAllTools();
+      
+      console.log('Limpeza concluída');
+    };
+    
+    // Botão para visualizar histórico
+    document.getElementById('history-btn').onclick = function() {
+      if (measurementHistory.length === 0) {
+        alert('Nenhuma medição encontrada no histórico.');
+        return;
+      }
+      
+      var historyContent = '<div style="max-height: 300px; overflow-y: auto;">' +
+        '<h4 style="margin: 0 0 12px 0; color: #333;">📋 Histórico de Medições</h4>';
+      
+      measurementHistory.slice().reverse().forEach(function(measurement, index) {
+        var icon = '';
+        var value = '';
+        
+        switch(measurement.type) {
+          case 'distance':
+            icon = '📏';
+            value = formatDistance(measurement.data.totalDistance);
+            break;
+          case 'area':
+            icon = '🔲';
+            value = formatArea(measurement.data.totalArea);
+            break;
+          case 'angle':
+            icon = '📐';
+            value = measurement.data.angle.toFixed(2) + '°';
+            break;
+          case 'coordinate':
+            icon = '📍';
+            value = formatCoordinates(measurement.data.coordinates[0]);
+            break;
+        }
+        
+        var date = new Date(measurement.timestamp).toLocaleString('pt-BR');
+        
+        historyContent += '<div style="border: 1px solid #ddd; border-radius: 4px; padding: 8px; margin-bottom: 8px; background: #f9f9f9;">' +
+          '<div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">' +
+          '<span style="font-size: 16px;">' + icon + '</span>' +
+          '<strong style="color: #333;">' + value + '</strong>' +
+          '</div>' +
+          '<div style="font-size: 11px; color: #666;">' +
+          '<div>ID: ' + measurement.id + '</div>' +
+          '<div>Data: ' + date + '</div>' +
+          '<div>Pontos: ' + measurement.data.points.length + '</div>' +
+          '</div>' +
+          '</div>';
+      });
+      
+      historyContent += '</div>';
+      
+      L.popup()
+        .setLatLng(map.getCenter())
+        .setContent(historyContent)
+        .openOn(map);
+    };
+    
+    // Função para calcular ângulo entre 3 pontos
+    function calculateAngle(p1, p2, p3) {
+      var angle1 = Math.atan2(p2.lat - p1.lat, p2.lng - p1.lng);
+      var angle2 = Math.atan2(p3.lat - p2.lat, p3.lng - p2.lng);
+      var angle = (angle2 - angle1) * 180 / Math.PI;
+      
+      // Normalizar ângulo para 0-360
+      if (angle < 0) angle += 360;
+      
+      return angle;
+    }
+    
+    // Função para calcular área de polígono (aproximação)
+    function calculatePolygonArea(points) {
+      if (points.length < 3) return 0;
+      
+      var area = 0;
+      for (var i = 0; i < points.length; i++) {
+        var j = (i + 1) % points.length;
+        area += points[i].lng * points[j].lat;
+        area -= points[j].lng * points[i].lat;
+      }
+      area = Math.abs(area) / 2;
+      
+      // Converter para área aproximada em metros quadrados
+      // Esta é uma aproximação simples - para maior precisão seria necessário usar fórmulas geodésicas
+      return area * 111320 * 111320; // Aproximação: 1 grau ≈ 111.32 km
+    }
+    
+    // FASE 4 - Painéis de Controle (Camadas e Basemaps)
+    var layersPanel = document.getElementById('layers-panel');
+    var basemapPanel = document.getElementById('basemap-panel');
+    var layersToggle = document.getElementById('layers-toggle');
+    var basemapToggle = document.getElementById('basemap-toggle');
+    
+    // Toggle do painel de camadas
+    layersToggle.onclick = function() {
+      if (layersPanel.style.display === 'none' || layersPanel.style.display === '') {
+        layersPanel.style.display = 'block';
+        basemapPanel.style.display = 'none';
+        measurementPanel.style.display = 'none';
+        layersToggle.style.background = '#bbdefb';
+        basemapToggle.style.background = '#e3f2fd';
+        measurementToggle.style.background = '#e3f2fd';
+      } else {
+        layersPanel.style.display = 'none';
+        layersToggle.style.background = '#e3f2fd';
+      }
+    };
+    
+    // Toggle do painel de basemaps
+    basemapToggle.onclick = function() {
+      if (basemapPanel.style.display === 'none' || basemapPanel.style.display === '') {
+        basemapPanel.style.display = 'block';
+        layersPanel.style.display = 'none';
+        measurementPanel.style.display = 'none';
+        basemapToggle.style.background = '#bbdefb';
+        layersToggle.style.background = '#e3f2fd';
+        measurementToggle.style.background = '#e3f2fd';
+      } else {
+        basemapPanel.style.display = 'none';
+        basemapToggle.style.background = '#e3f2fd';
+      }
+    };
+    
+    // Atualizar toggle do painel de medição para fechar outros painéis
+    measurementToggle.onclick = function() {
+      if (measurementPanel.style.display === 'none' || measurementPanel.style.display === '') {
+        measurementPanel.style.display = 'block';
+        layersPanel.style.display = 'none';
+        basemapPanel.style.display = 'none';
+        measurementToggle.style.background = '#bbdefb';
+        layersToggle.style.background = '#e3f2fd';
+        basemapToggle.style.background = '#e3f2fd';
+      } else {
+        measurementPanel.style.display = 'none';
+        measurementToggle.style.background = '#e3f2fd';
+        deactivateAllTools();
+      }
+    };
+    
+    // Event listeners para basemaps
+    document.querySelectorAll('.basemap-option').forEach(function(option) {
+      option.addEventListener('click', function() {
+        var basemapKey = this.getAttribute('data-basemap');
+        console.log('Trocando basemap para:', basemapKey);
+        setBasemap(basemapKey);
+        
+        // Atualizar seleção visual
+        document.querySelectorAll('.basemap-option').forEach(opt => opt.classList.remove('active'));
+        this.classList.add('active');
+        document.querySelector('input[value="' + basemapKey + '"]').checked = true;
+      });
+    });
+    
+    // Marcar Esri como ativo inicialmente
+    setTimeout(function() {
+      var esriOption = document.querySelector('.basemap-option[data-basemap="esri"]');
+      if (esriOption) {
+        esriOption.classList.add('active');
+        console.log('Esri marcado como ativo');
+      }
+    }, 1000);
+    
+    // Função para criar controles de camadas no painel customizado
+    function createLayerControls() {
+      console.log('Criando controles de camadas...');
+      console.log('Overlays disponíveis:', Object.keys(overlays));
+      
+      var layersContainer = document.querySelector('#layers-panel');
+      layersContainer.innerHTML = '<div class="panel-header">Camadas Temáticas</div>';
+      
+      // Adicionar controles para cada camada
+      Object.keys(overlays).forEach(function(layerName) {
+        console.log('Adicionando controle para camada:', layerName);
+        var layer = overlays[layerName];
+        var div = document.createElement('div');
+        div.className = 'panel-btn';
+        div.innerHTML = '<i>🗂️</i>' + layerName;
+        
+        // Verificar se a camada está ativa
+        if (map.hasLayer(layer)) {
+          div.classList.add('active');
+        }
+        
+        div.onclick = function() {
+          if (map.hasLayer(layer)) {
+            map.removeLayer(layer);
+            div.classList.remove('active');
+          } else {
+            layer.addTo(map);
+            div.classList.add('active');
+          }
+          reorderLayers();
+        };
+        
+        layersContainer.appendChild(div);
+        
+        // Adicionar slider de opacidade apenas para camadas que precisam
+        if (layerName !== 'Limite Municipal de Garça-SP' && 
+            layerName !== 'Bairros de Garça-SP' && 
+            layerName !== 'Malha Rodoviária' && 
+            layerName !== 'Hidrografia') {
+          var opacityContainer = document.createElement('div');
+          opacityContainer.className = 'opacity-slider-container';
+          opacityContainer.style = 'margin: 2px 0 6px 24px; display: flex; align-items: center; gap: 8px;';
+          
+          var opacityLabel = document.createElement('span');
+          opacityLabel.textContent = 'Opacidade:';
+          opacityLabel.style = 'font-size: 11px; color: #666; min-width: 60px;';
+          
+          var opacitySlider = document.createElement('input');
+          opacitySlider.type = 'range';
+          opacitySlider.min = '0';
+          opacitySlider.max = '1';
+          opacitySlider.step = '0.05';
+          opacitySlider.value = '0.5'; // Valor padrão
+          opacitySlider.style = 'width: 80px; height: 2px; accent-color: #007bff;';
+          opacitySlider.title = 'Ajustar opacidade';
+          
+          opacitySlider.oninput = function(e) {
+            var opacity = parseFloat(e.target.value);
+            if (layerName === 'Litologia de Garça-SP' && camadaLitologia) {
+              setLayerOpacity(camadaLitologia, opacity, undefined);
+            } else if (layerName === 'Aquífero de Garça-SP' && camadaAquifero) {
+              setLayerOpacity(camadaAquifero, opacity, undefined);
+            } else if (layerName === 'Concha Acústica' && camadaConcha) {
+              setLayerOpacity(camadaConcha, opacity, undefined);
+            } else if (layerName === 'Lago Artificial' && camadaLago) {
+              setLayerOpacity(camadaLago, opacity, undefined);
+            } else if (layerName === 'Vias Municipais' && camadaViasAcesso) {
+              setLayerOpacity(camadaViasAcesso, undefined, opacity);
+            } else {
+              // Para outras camadas, aplicar opacidade geral
+              layer.eachLayer(function(l) {
+                if (l.setStyle) {
+                  var currentStyle = l.options || {};
+                  if (l instanceof L.Polygon) {
+                    l.setStyle({fillOpacity: opacity, opacity: opacity});
+                  } else if (l instanceof L.Polyline) {
+                    l.setStyle({opacity: opacity});
+                  }
+                }
+              });
+            }
+          };
+          
+          opacityContainer.appendChild(opacityLabel);
+          opacityContainer.appendChild(opacitySlider);
+          layersContainer.appendChild(opacityContainer);
+        }
+        
+        // Adicionar checkbox para labels dos bairros
+        if (layerName === 'Bairros de Garça-SP') {
+          var labelsContainer = document.createElement('div');
+          labelsContainer.className = 'labels-checkbox-container';
+          labelsContainer.style = 'margin: 2px 0 6px 24px; display: flex; align-items: center; gap: 6px;';
+          
+          var labelsCheckbox = document.createElement('input');
+          labelsCheckbox.type = 'checkbox';
+          labelsCheckbox.id = 'bairros-labels-toggle-custom';
+          labelsCheckbox.checked = true;
+          labelsCheckbox.style = 'margin: 0; transform: scale(0.9);';
+          
+          var labelsLabel = document.createElement('label');
+          labelsLabel.htmlFor = 'bairros-labels-toggle-custom';
+          labelsLabel.textContent = 'Labels dos Bairros';
+          labelsLabel.style = 'font-size: 11px; color: #666; margin: 0; cursor: pointer;';
+          
+          labelsCheckbox.addEventListener('change', function() {
+            if (camadaBairros) {
+              camadaBairros.eachLayer(function(l) {
+                if (l.getTooltip && l.getTooltip()) {
+                  if (labelsCheckbox.checked && map.hasLayer(camadaBairros)) {
+                    l.openTooltip();
+                  } else {
+                    l.closeTooltip();
+                  }
+                }
+              });
+            }
+          });
+          
+          labelsContainer.appendChild(labelsCheckbox);
+          labelsContainer.appendChild(labelsLabel);
+          layersContainer.appendChild(labelsContainer);
+        }
+      });
+    }
+    
+    // Criar controles de camadas após carregar todas as camadas
+    setTimeout(function() {
+      createLayerControls();
+      // Atualizar legenda após criar controles
+      setTimeout(function() {
+        var updateLegend = window.updateLegend;
+        if (updateLegend) updateLegend();
+      }, 1000);
+    }, 5000);
+
+    // FASE 1 - Implementação das ferramentas de navegação
+    
+    // Adicionar barra de escala
+    L.control.scale({
+      position: 'bottomleft',
+      maxWidth: 200,
+      metric: true,
+      imperial: false,
+      updateWhenIdle: true
+    }).addTo(map);
+    
+    // Atualizar coordenadas do cursor
+    function updateCoordinates(e) {
+      var lat = e.latlng.lat.toFixed(6);
+      var lng = e.latlng.lng.toFixed(6);
+      var coordsDisplay = document.getElementById('coordinates-display');
+      if (coordsDisplay) {
+        coordsDisplay.textContent = 'Lat. ' + lat + ' ; Long. ' + lng;
+      }
+    }
+    
+    // Event listener para movimento do mouse (coordenadas)
+    map.on('mousemove', updateCoordinates);
+
+    // A escala agora fica posicionada separadamente no canto inferior esquerdo
+    // Não precisa mais ser movida para o bottom-right-bar
+  </script>
+</body>
+</html> 
