@@ -2,7 +2,11 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#667eea">
       <title>WebGIS DO MUNICÍPIO DE GARÇA-SP</title>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
@@ -134,7 +138,57 @@
         margin-top: 45px; 
       }
     }
-    body { margin: 0; padding: 0; }
+    body { 
+      margin: 0; 
+      padding: 0; 
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -khtml-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      touch-action: manipulation;
+    }
+    
+    /* Melhorias para touch em mobile */
+    @media (max-width: 768px) {
+      * {
+        -webkit-tap-highlight-color: transparent;
+      }
+      
+      .leaflet-control-layers label {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        padding: 8px 12px;
+        margin: 2px 0;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-weight: 500;
+      }
+      
+      .leaflet-control-layers label:hover,
+      .leaflet-control-layers label:active {
+        background-color: rgba(0,0,0,0.08);
+        transform: scale(1.02);
+      }
+      
+      .leaflet-control-layers input[type="radio"],
+      .leaflet-control-layers input[type="checkbox"] {
+        margin-right: 8px;
+        transform: scale(1.2);
+      }
+      
+      /* Melhor feedback visual para botões */
+      .leaflet-control-zoom a:active,
+      .leaflet-control-layers-toggle:active,
+      #view-toggle:active {
+        transform: scale(0.95);
+        transition: transform 0.1s ease;
+      }
+    }
+    
     /* Controles modernos */
     .opacity-control, .info.legend {
       font-size: 14px;
@@ -363,8 +417,140 @@
       }
     }
     
-    /* Mobile pequeno (smartphones) */
+    /* Mobile pequeno (smartphones) - OTIMIZADO */
     @media (max-width: 480px) {
+      #map-title-bar {
+        height: 55px;
+        font-size: 0.95rem;
+        padding: 0 12px;
+        gap: 8px;
+        font-weight: 500;
+      }
+      
+      #logo-img {
+        max-height: 32px;
+        padding: 4px;
+        border-width: 1.5px;
+      }
+      
+      #map {
+        height: calc(100vh - 55px);
+        margin-top: 55px;
+      }
+      
+      /* Controles de camadas otimizados para mobile */
+      .opacity-control, .info.legend {
+        font-size: 14px;
+        min-width: 160px;
+        max-width: 92vw;
+        padding: 12px;
+        border-radius: 12px;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        border: 1px solid rgba(255,255,255,0.3);
+      }
+      
+      .info.legend {
+        min-width: 200px;
+        max-width: 280px;
+        padding: 14px !important;
+        bottom: 70px !important;
+        left: 15px !important;
+        right: 15px !important;
+        max-height: 60vh;
+        overflow-y: auto;
+      }
+      
+      .info.legend h4 {
+        font-size: 15px !important;
+        margin-bottom: 10px !important;
+        font-weight: 600;
+      }
+      
+      .opacity-control label {
+        font-size: 13px;
+        margin-bottom: 4px;
+        font-weight: 500;
+      }
+      
+      .opacity-control input[type=range] {
+        height: 6px;
+        margin-bottom: 6px;
+        border-radius: 3px;
+      }
+      
+      .opacity-control strong {
+        font-size: 14px;
+        margin-bottom: 4px;
+        font-weight: 600;
+      }
+      
+      /* Controles do Leaflet otimizados */
+      .leaflet-control-layers {
+        font-size: 14px;
+        max-width: 92vw;
+        border-radius: 12px;
+        padding: 8px;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+      }
+      
+      .leaflet-control-layers-toggle {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background-size: 20px;
+      }
+      
+      .leaflet-control-zoom a {
+        width: 44px;
+        height: 44px;
+        border-radius: 10px;
+        font-size: 18px;
+        font-weight: 600;
+        line-height: 44px;
+      }
+      
+      /* Botão de alternância otimizado */
+      #view-toggle {
+        bottom: 15px;
+        right: 15px;
+        width: 50px;
+        height: 50px;
+        font-size: 22px;
+        border-radius: 12px;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+      }
+      
+      /* Melhorias para touch */
+      .leaflet-control-layers label {
+        padding: 8px 12px;
+        margin: 2px 0;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+      }
+      
+      .leaflet-control-layers label:hover {
+        background-color: rgba(0,0,0,0.05);
+      }
+      
+      /* Scroll suave para legendas longas */
+      .info.legend::-webkit-scrollbar {
+        width: 6px;
+      }
+      
+      .info.legend::-webkit-scrollbar-track {
+        background: rgba(0,0,0,0.1);
+        border-radius: 3px;
+      }
+      
+      .info.legend::-webkit-scrollbar-thumb {
+        background: rgba(0,0,0,0.3);
+        border-radius: 3px;
+      }
+    }
+    
+    /* Mobile muito pequeno - OTIMIZADO */
+    @media (max-width: 360px) {
       #map-title-bar {
         height: 50px;
         font-size: 0.9rem;
@@ -373,7 +559,7 @@
       }
       
       #logo-img {
-        max-height: 30px;
+        max-height: 28px;
         padding: 3px;
         border-width: 1px;
       }
@@ -386,9 +572,10 @@
       .opacity-control, .info.legend {
         font-size: 13px;
         min-width: 140px;
-        max-width: 88vw;
+        max-width: 90vw;
         padding: 10px;
         border-radius: 10px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.15);
       }
       
       .info.legend {
@@ -397,107 +584,34 @@
         padding: 12px !important;
         bottom: 65px !important;
         left: 12px !important;
+        right: 12px !important;
+        max-height: 55vh;
+        overflow-y: auto;
       }
       
       .info.legend h4 {
         font-size: 14px !important;
         margin-bottom: 8px !important;
-      }
-      
-      .opacity-control label {
-        font-size: 12px;
-        margin-bottom: 3px;
-      }
-      
-      .opacity-control input[type=range] {
-        height: 5px;
-        margin-bottom: 5px;
-      }
-      
-      .opacity-control strong {
-        font-size: 13px;
-        margin-bottom: 3px;
+        font-weight: 600;
       }
       
       .leaflet-control-layers {
         font-size: 13px;
-        max-width: 88vw;
+        max-width: 90vw;
         border-radius: 10px;
+        padding: 6px;
       }
       
       .leaflet-control-layers-toggle {
         width: 40px;
         height: 40px;
         border-radius: 10px;
+        background-size: 18px;
       }
       
       .leaflet-control-zoom a {
         width: 40px;
         height: 40px;
-        border-radius: 8px;
-        font-size: 16px;
-      }
-      
-      #view-toggle {
-        bottom: 12px;
-        right: 12px;
-        width: 45px;
-        height: 45px;
-        font-size: 20px;
-        border-radius: 10px;
-      }
-    }
-    
-    /* Mobile muito pequeno */
-    @media (max-width: 360px) {
-      #map-title-bar {
-        height: 45px;
-        font-size: 0.85rem;
-        padding: 0 8px;
-      }
-      
-      #logo-img {
-        max-height: 26px;
-        padding: 2px;
-      }
-      
-      #map {
-        height: calc(100vh - 45px);
-        margin-top: 45px;
-      }
-      
-      .opacity-control, .info.legend {
-        font-size: 12px;
-        min-width: 120px;
-        max-width: 85vw;
-        padding: 8px;
-        border-radius: 8px;
-      }
-      
-      .info.legend {
-        min-width: 160px;
-        max-width: 240px;
-        padding: 10px !important;
-        bottom: 60px !important;
-        left: 10px !important;
-      }
-      
-      .leaflet-control-layers {
-        font-size: 12px;
-        max-width: 85vw;
-        border-radius: 8px;
-        border-radius: 8px;
-      }
-      
-      .leaflet-control-layers-toggle {
-        width: 36px;
-        height: 36px;
-        border-radius: 8px;
-      }
-      
-      .leaflet-control-zoom a {
-        width: 36px;
-        height: 36px;
         border-radius: 6px;
         font-size: 14px;
       }
