@@ -189,6 +189,168 @@
       }
     }
     
+    /* ===== TOGGLE DESKTOP/MOBILE VIEW ===== */
+    /* Classe para modo mobile ativo */
+    body.mobile-view {
+      /* Força visualização mobile mesmo em desktop */
+    }
+    
+    body.mobile-view #map-title-bar {
+      height: 55px;
+      font-size: 0.95rem;
+      padding: 0 12px;
+      gap: 8px;
+      font-weight: 500;
+    }
+    
+    body.mobile-view #logo-img {
+      max-height: 32px;
+      padding: 4px;
+      border-width: 1.5px;
+    }
+    
+    body.mobile-view #map {
+      height: calc(100vh - 55px);
+      margin-top: 55px;
+    }
+    
+    body.mobile-view .opacity-control,
+    body.mobile-view .info.legend {
+      font-size: 14px;
+      min-width: 160px;
+      max-width: 92vw;
+      padding: 12px;
+      border-radius: 12px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+    
+    body.mobile-view .info.legend {
+      min-width: 200px;
+      max-width: 280px;
+      padding: 14px !important;
+      bottom: 70px !important;
+      left: 15px !important;
+      right: 15px !important;
+      max-height: 60vh;
+      overflow-y: auto;
+    }
+    
+    body.mobile-view .info.legend h4 {
+      font-size: 15px !important;
+      margin-bottom: 10px !important;
+      font-weight: 600;
+    }
+    
+    body.mobile-view .opacity-control label {
+      font-size: 13px;
+      margin-bottom: 4px;
+      font-weight: 500;
+    }
+    
+    body.mobile-view .opacity-control input[type=range] {
+      height: 6px;
+      margin-bottom: 6px;
+      border-radius: 3px;
+    }
+    
+    body.mobile-view .opacity-control strong {
+      font-size: 14px;
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+    
+    body.mobile-view .leaflet-control-layers {
+      font-size: 14px;
+      max-width: 92vw;
+      border-radius: 12px;
+      padding: 8px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    }
+    
+    body.mobile-view .leaflet-control-layers-toggle {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background-size: 20px;
+    }
+    
+    body.mobile-view .leaflet-control-zoom a {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      font-size: 18px;
+      font-weight: 600;
+      line-height: 44px;
+    }
+    
+    body.mobile-view #view-toggle {
+      bottom: 15px;
+      right: 15px;
+      width: 50px;
+      height: 50px;
+      font-size: 22px;
+      border-radius: 12px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+    }
+    
+    body.mobile-view .leaflet-control-layers label {
+      padding: 8px 12px;
+      margin: 2px 0;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+    }
+    
+    body.mobile-view .leaflet-control-layers label:hover {
+      background-color: rgba(0,0,0,0.05);
+    }
+    
+    body.mobile-view .info.legend::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    body.mobile-view .info.legend::-webkit-scrollbar-track {
+      background: rgba(0,0,0,0.1);
+      border-radius: 3px;
+    }
+    
+    body.mobile-view .info.legend::-webkit-scrollbar-thumb {
+      background: rgba(0,0,0,0.3);
+      border-radius: 3px;
+    }
+    
+    /* Melhorar feedback visual do botão toggle */
+    #view-toggle {
+      transition: all 0.3s ease;
+      border: 2px solid rgba(255,255,255,0.8);
+    }
+    
+    #view-toggle:hover {
+      transform: scale(1.1);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+      border-color: rgba(255,255,255,1);
+    }
+    
+    #view-toggle:active {
+      transform: scale(0.95);
+    }
+    
+    body.mobile-view #view-toggle {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-color: rgba(255,255,255,0.3);
+    }
+    
+    body.mobile-view #view-toggle:hover {
+      background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+      transform: scale(1.1);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    }
+    
     /* Controles modernos */
     .opacity-control, .info.legend {
       font-size: 14px;
@@ -1501,19 +1663,37 @@
     var iconMobile = '📱';
     var toggleBtn = document.getElementById('view-toggle');
     var toggleIcon = document.getElementById('view-toggle-icon');
+    
     function setViewMode(mobile) {
       isMobileView = mobile;
       if (mobile) {
         document.body.classList.add('mobile-view');
         toggleIcon.textContent = iconMobile;
+        toggleIcon.title = 'Alternar para visualização Desktop';
+        console.log('Modo Mobile ativado');
       } else {
         document.body.classList.remove('mobile-view');
         toggleIcon.textContent = iconDesktop;
+        toggleIcon.title = 'Alternar para visualização Mobile';
+        console.log('Modo Desktop ativado');
       }
+      
+      // Força redimensionamento do mapa
+      setTimeout(function() {
+        map.invalidateSize();
+      }, 100);
     }
+    
     toggleBtn.onclick = function() {
       setViewMode(!isMobileView);
+      
+      // Feedback visual
+      toggleBtn.style.transform = 'scale(0.95)';
+      setTimeout(function() {
+        toggleBtn.style.transform = '';
+      }, 150);
     };
+    
     // Inicializa como desktop
     setViewMode(false);
 
