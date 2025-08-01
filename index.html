@@ -148,6 +148,29 @@
       -ms-user-select: none;
       user-select: none;
       touch-action: manipulation;
+      background: transparent;
+    }
+    
+    /* Garantir que não haja sobreposições indesejadas */
+    #map {
+      position: relative !important;
+      z-index: 1 !important;
+    }
+    
+    /* Remover qualquer elemento que possa estar sobrepondo o mapa */
+    .leaflet-pane {
+      z-index: 1 !important;
+    }
+    
+    /* Garantir que elementos de controle não cubram o mapa */
+    .leaflet-control {
+      z-index: 1000 !important;
+    }
+    
+    /* Remover fundos brancos desnecessários */
+    .opacity-slider-container,
+    .labels-checkbox-container {
+      background: transparent !important;
     }
     
     /* Melhorias para touch em mobile */
@@ -1965,6 +1988,47 @@
       
       // Inicializar botões após um delay maior para garantir que tudo esteja carregado
       setTimeout(initializeAllButtons, 2000);
+      
+      // Função para verificar e corrigir sobreposições brancas
+      function fixWhiteOverlay() {
+        console.log('Verificando sobreposições brancas...');
+        
+        // Verificar elementos que podem estar causando sobreposição
+        var allElements = document.querySelectorAll('*');
+        allElements.forEach(function(element) {
+          var style = window.getComputedStyle(element);
+          var bgColor = style.backgroundColor;
+          var position = style.position;
+          var zIndex = parseInt(style.zIndex) || 0;
+          
+          // Se é um elemento com fundo branco e posição absoluta/fixed, verificar se está sobrepondo o mapa
+          if ((bgColor === 'rgb(255, 255, 255)' || bgColor === 'white') && 
+              (position === 'absolute' || position === 'fixed') && 
+              zIndex > 1 && zIndex < 1000) {
+            
+            var rect = element.getBoundingClientRect();
+            var mapRect = document.getElementById('map').getBoundingClientRect();
+            
+            // Se o elemento está sobrepondo uma grande área do mapa
+            if (rect.width > 200 && rect.height > 200) {
+              console.log('Elemento suspeito encontrado:', element);
+              console.log('Dimensões:', rect.width, 'x', rect.height);
+              console.log('Posição:', position, 'z-index:', zIndex);
+              
+              // Tornar o fundo transparente se não for um controle importante
+              if (!element.classList.contains('leaflet-control') && 
+                  !element.classList.contains('info') &&
+                  !element.id.includes('toggle')) {
+                element.style.backgroundColor = 'transparent';
+                console.log('Fundo tornado transparente');
+              }
+            }
+          }
+        });
+      }
+      
+      // Executar verificação após carregamento
+      setTimeout(fixWhiteOverlay, 3000);
     });
 
     // Inicializa o mapa
