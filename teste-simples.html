@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teste Simples - WebGIS Garça-SP</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+    
+    #map-title-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 60px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: 600;
+      text-align: center;
+      z-index: 2000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    #map {
+      height: calc(100vh - 60px);
+      width: 100vw;
+      margin-top: 60px;
+    }
+    
+    #view-toggle {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      z-index: 1200;
+      background: white;
+      border-radius: 50%;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 24px;
+      user-select: none;
+    }
+    
+    /* Modo mobile */
+    body.mobile-view #map-title-bar {
+      height: 50px;
+      font-size: 1rem;
+    }
+    
+    body.mobile-view #map {
+      height: calc(100vh - 50px);
+      margin-top: 50px;
+    }
+    
+    body.mobile-view #view-toggle {
+      width: 50px;
+      height: 50px;
+      font-size: 22px;
+    }
+  </style>
+</head>
+<body>
+  <div id="map-title-bar">
+    WEBGIS DO MUNICÍPIO DE GARÇA-SP
+  </div>
+  
+  <div id="map"></div>
+  
+  <div id="view-toggle">
+    <span id="view-toggle-icon">💻</span>
+  </div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    console.log('Iniciando teste simples...');
+    
+    // Inicializar mapa
+    var map = L.map('map', {
+      center: [-22.2125, -49.6547],
+      zoom: 11
+    });
+    
+    // Adicionar camada base
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+    
+    console.log('Mapa inicializado');
+    
+    // Toggle simples
+    var isMobileView = false;
+    var toggleBtn = document.getElementById('view-toggle');
+    var toggleIcon = document.getElementById('view-toggle-icon');
+    
+    if (toggleBtn && toggleIcon) {
+      console.log('Elementos de toggle encontrados');
+      
+      toggleBtn.onclick = function() {
+        console.log('Toggle clicado!');
+        isMobileView = !isMobileView;
+        
+        if (isMobileView) {
+          document.body.classList.add('mobile-view');
+          toggleIcon.textContent = '📱';
+          console.log('Modo Mobile ativado');
+        } else {
+          document.body.classList.remove('mobile-view');
+          toggleIcon.textContent = '💻';
+          console.log('Modo Desktop ativado');
+        }
+        
+        // Redimensionar mapa
+        setTimeout(function() {
+          map.invalidateSize();
+          console.log('Mapa redimensionado');
+        }, 100);
+      };
+      
+      console.log('Toggle inicializado com sucesso');
+    } else {
+      console.log('ERRO: Elementos de toggle não encontrados');
+    }
+  </script>
+</body>
+</html> 
