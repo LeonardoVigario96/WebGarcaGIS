@@ -1695,56 +1695,263 @@
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet-geometryutil@0.10.0/src/leaflet.geometryutil.js"></script>
   <script>
-    // Toggle simples Desktop/Mobile - VERSÃO FUNCIONAL
-    document.addEventListener('DOMContentLoaded', function() {
-      console.log('DOM carregado, inicializando toggle...');
+    // ===== SISTEMA DE TOGGLE MOBILE COMPLETO E ROBUSTO =====
+    
+    // Variáveis globais para o toggle
+    var isMobileView = false;
+    var toggleBtn = null;
+    var toggleIcon = null;
+    var map = null;
+    
+    // Função para inicializar o toggle mobile
+    function initializeMobileToggle() {
+      console.log('🔧 Inicializando sistema de toggle mobile...');
       
-      var isMobileView = false;
-      var toggleBtn = document.getElementById('view-toggle');
-      var toggleIcon = document.getElementById('view-toggle-icon');
-      
-      if (toggleBtn && toggleIcon) {
-        console.log('Elementos de toggle encontrados');
-        
-        toggleBtn.onclick = function() {
-          console.log('Toggle clicado!');
-          isMobileView = !isMobileView;
-          
-          if (isMobileView) {
-            document.body.classList.add('mobile-view');
-            toggleIcon.textContent = '📱';
-            toggleIcon.title = 'Alternar para Desktop';
-            console.log('Modo Mobile ativado');
-          } else {
-            document.body.classList.remove('mobile-view');
-            toggleIcon.textContent = '💻';
-            toggleIcon.title = 'Alternar para Mobile';
-            console.log('Modo Desktop ativado');
-          }
-          
-          // Feedback visual
-          toggleBtn.style.transform = 'scale(0.95)';
-          setTimeout(function() {
-            toggleBtn.style.transform = '';
-          }, 150);
-          
-          // Redimensionar mapa
-          setTimeout(function() {
-            if (window.map) {
-              map.invalidateSize();
-              console.log('Mapa redimensionado');
-            }
-          }, 100);
-        };
-        
-        console.log('Toggle inicializado com sucesso');
-      } else {
-        console.log('ERRO: Elementos de toggle não encontrados');
+      // Aguardar DOM estar pronto
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeMobileToggle);
+        return;
       }
-    });
-
+      
+      // Buscar elementos
+      toggleBtn = document.getElementById('view-toggle');
+      toggleIcon = document.getElementById('view-toggle-icon');
+      
+      if (!toggleBtn || !toggleIcon) {
+        console.error('❌ Elementos de toggle não encontrados!');
+        console.log('Toggle button:', toggleBtn);
+        console.log('Toggle icon:', toggleIcon);
+        return;
+      }
+      
+      console.log('✅ Elementos de toggle encontrados');
+      
+      // Adicionar event listener
+      toggleBtn.addEventListener('click', handleToggleClick);
+      
+      // Verificar se já está em modo mobile por padrão
+      if (window.innerWidth <= 768) {
+        console.log('📱 Dispositivo mobile detectado, aplicando modo mobile...');
+        applyMobileView();
+      }
+      
+      console.log('✅ Sistema de toggle mobile inicializado com sucesso');
+    }
+    
+    // Função para lidar com o clique no toggle
+    function handleToggleClick(event) {
+      event.preventDefault();
+      event.stopPropagation();
+      
+      console.log('🖱️ Toggle clicado!');
+      
+      // Alternar estado
+      isMobileView = !isMobileView;
+      
+      if (isMobileView) {
+        applyMobileView();
+      } else {
+        applyDesktopView();
+      }
+      
+      // Feedback visual
+      toggleBtn.style.transform = 'scale(0.95)';
+      setTimeout(function() {
+        toggleBtn.style.transform = '';
+      }, 150);
+      
+      // Redimensionar mapa
+      setTimeout(function() {
+        if (map) {
+          map.invalidateSize();
+          console.log('🗺️ Mapa redimensionado');
+        }
+      }, 100);
+    }
+    
+    // Função para aplicar visualização mobile
+    function applyMobileView() {
+      console.log('📱 Aplicando modo mobile...');
+      
+      // Adicionar classe ao body
+      document.body.classList.add('mobile-view');
+      
+      // Atualizar ícone
+      if (toggleIcon) {
+        toggleIcon.textContent = '📱';
+        toggleIcon.title = 'Alternar para Desktop';
+      }
+      
+      // Aplicar estilos mobile específicos
+      applyMobileStyles();
+      
+      console.log('✅ Modo mobile aplicado');
+    }
+    
+    // Função para aplicar visualização desktop
+    function applyDesktopView() {
+      console.log('💻 Aplicando modo desktop...');
+      
+      // Remover classe do body
+      document.body.classList.remove('mobile-view');
+      
+      // Atualizar ícone
+      if (toggleIcon) {
+        toggleIcon.textContent = '💻';
+        toggleIcon.title = 'Alternar para Mobile';
+      }
+      
+      // Remover estilos mobile
+      removeMobileStyles();
+      
+      console.log('✅ Modo desktop aplicado');
+    }
+    
+    // Função para aplicar estilos mobile
+    function applyMobileStyles() {
+      // Header mobile
+      var titleBar = document.getElementById('map-title-bar');
+      if (titleBar) {
+        titleBar.style.height = '50px';
+        titleBar.style.fontSize = '1rem';
+        titleBar.style.padding = '0 10px';
+      }
+      
+      // Logo mobile
+      var logo = document.getElementById('logo-img');
+      if (logo) {
+        logo.style.maxHeight = '30px';
+        logo.style.padding = '3px';
+      }
+      
+      // Mapa mobile
+      var mapElement = document.getElementById('map');
+      if (mapElement) {
+        mapElement.style.height = 'calc(100vh - 50px)';
+        mapElement.style.marginTop = '50px';
+      }
+      
+      // Controles mobile
+      var controls = document.querySelectorAll('.opacity-control, .info.legend');
+      controls.forEach(function(control) {
+        control.style.fontSize = '13px';
+        control.style.minWidth = '140px';
+        control.style.maxWidth = '90vw';
+        control.style.padding = '10px';
+        control.style.borderRadius = '10px';
+      });
+      
+      // Controles Leaflet mobile
+      var leafletControls = document.querySelectorAll('.leaflet-control-layers');
+      leafletControls.forEach(function(control) {
+        control.style.fontSize = '13px';
+        control.style.maxWidth = '90vw';
+        control.style.borderRadius = '10px';
+        control.style.padding = '6px';
+      });
+      
+      var leafletToggles = document.querySelectorAll('.leaflet-control-layers-toggle');
+      leafletToggles.forEach(function(toggle) {
+        toggle.style.width = '40px';
+        toggle.style.height = '40px';
+        toggle.style.borderRadius = '10px';
+      });
+      
+      var zoomControls = document.querySelectorAll('.leaflet-control-zoom a');
+      zoomControls.forEach(function(zoom) {
+        zoom.style.width = '40px';
+        zoom.style.height = '40px';
+        zoom.style.borderRadius = '8px';
+        zoom.style.fontSize = '16px';
+        zoom.style.lineHeight = '40px';
+      });
+      
+      // Botão toggle mobile
+      if (toggleBtn) {
+        toggleBtn.style.bottom = '15px';
+        toggleBtn.style.right = '15px';
+        toggleBtn.style.width = '50px';
+        toggleBtn.style.height = '50px';
+        toggleBtn.style.fontSize = '22px';
+        toggleBtn.style.borderRadius = '12px';
+      }
+    }
+    
+    // Função para remover estilos mobile
+    function removeMobileStyles() {
+      // Header desktop
+      var titleBar = document.getElementById('map-title-bar');
+      if (titleBar) {
+        titleBar.style.height = '';
+        titleBar.style.fontSize = '';
+        titleBar.style.padding = '';
+      }
+      
+      // Logo desktop
+      var logo = document.getElementById('logo-img');
+      if (logo) {
+        logo.style.maxHeight = '';
+        logo.style.padding = '';
+      }
+      
+      // Mapa desktop
+      var mapElement = document.getElementById('map');
+      if (mapElement) {
+        mapElement.style.height = '';
+        mapElement.style.marginTop = '';
+      }
+      
+      // Controles desktop
+      var controls = document.querySelectorAll('.opacity-control, .info.legend');
+      controls.forEach(function(control) {
+        control.style.fontSize = '';
+        control.style.minWidth = '';
+        control.style.maxWidth = '';
+        control.style.padding = '';
+        control.style.borderRadius = '';
+      });
+      
+      // Controles Leaflet desktop
+      var leafletControls = document.querySelectorAll('.leaflet-control-layers');
+      leafletControls.forEach(function(control) {
+        control.style.fontSize = '';
+        control.style.maxWidth = '';
+        control.style.borderRadius = '';
+        control.style.padding = '';
+      });
+      
+      var leafletToggles = document.querySelectorAll('.leaflet-control-layers-toggle');
+      leafletToggles.forEach(function(toggle) {
+        toggle.style.width = '';
+        toggle.style.height = '';
+        toggle.style.borderRadius = '';
+      });
+      
+      var zoomControls = document.querySelectorAll('.leaflet-control-zoom a');
+      zoomControls.forEach(function(zoom) {
+        zoom.style.width = '';
+        zoom.style.height = '';
+        zoom.style.borderRadius = '';
+        zoom.style.fontSize = '';
+        zoom.style.lineHeight = '';
+      });
+      
+      // Botão toggle desktop
+      if (toggleBtn) {
+        toggleBtn.style.bottom = '';
+        toggleBtn.style.right = '';
+        toggleBtn.style.width = '';
+        toggleBtn.style.height = '';
+        toggleBtn.style.fontSize = '';
+        toggleBtn.style.borderRadius = '';
+      }
+    }
+    
+    // Inicializar toggle quando o script carregar
+    initializeMobileToggle();
+    
     // Inicializa o mapa
-    var map = L.map('map', {
+    map = L.map('map', {
       center: [-22.2125, -49.6547], // Centro aproximado de Garça-SP
       zoom: 11,
       zoomControl: false, // Desativa o zoom padrão na criação
@@ -1753,7 +1960,10 @@
     
     // Garantir que o mapa seja inicializado corretamente
     setTimeout(function() {
-      map.invalidateSize();
+      if (map) {
+        map.invalidateSize();
+        console.log('🗺️ Mapa inicializado e redimensionado');
+      }
     }, 100);
 
     // Basemap 1: OpenStreetMap
