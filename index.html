@@ -2496,6 +2496,27 @@
     // Inicializar toggle quando o script carregar
     initializeMobileToggle();
     
+    // Inicializar todos os event listeners quando o DOM estiver pronto
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('📄 DOM carregado, inicializando event listeners...');
+      initializeAllEventListeners();
+      initializePanelEventListeners();
+      
+      // Aguardar um pouco mais para garantir que todos os elementos estejam carregados
+      setTimeout(function() {
+        console.log('⏰ Inicializando event listeners com delay...');
+        initializeAllEventListeners();
+        initializePanelEventListeners();
+      }, 1000);
+      
+      // Inicializar novamente após 3 segundos para garantir
+      setTimeout(function() {
+        console.log('⏰ Inicializando event listeners final...');
+        initializeAllEventListeners();
+        initializePanelEventListeners();
+      }, 3000);
+    });
+    
     // Função para detectar e remover elementos brancos problemáticos
     function removeWhiteOverlays() {
       console.log('🔍 Procurando elementos brancos problemáticos...');
@@ -3731,21 +3752,64 @@
       });
     }, 1000);
 
-    // Zoom botões
-    document.getElementById('zoom-in-btn').onclick = function() { map.zoomIn(); };
-    document.getElementById('zoom-out-btn').onclick = function() { map.zoomOut(); };
-
-    // Modal Sobre
-    document.getElementById('about-btn').onclick = function() {
-      document.getElementById('about-modal').classList.remove('modal-hidden');
-    };
-    document.getElementById('close-modal').onclick = function() {
-      document.getElementById('about-modal').classList.add('modal-hidden');
-    };
-    // Fechar modal ao clicar fora do conteúdo
-    document.getElementById('about-modal').onclick = function(e) {
-      if (e.target === this) this.classList.add('modal-hidden');
-    };
+    // Função para inicializar todos os event listeners
+    function initializeAllEventListeners() {
+      console.log('🔧 Inicializando todos os event listeners...');
+      
+      // Zoom botões
+      var zoomInBtn = document.getElementById('zoom-in-btn');
+      var zoomOutBtn = document.getElementById('zoom-out-btn');
+      
+      if (zoomInBtn) {
+        zoomInBtn.onclick = function() { 
+          console.log('🔍 Zoom in clicado');
+          if (map) map.zoomIn(); 
+        };
+        console.log('✅ Zoom in inicializado');
+      }
+      
+      if (zoomOutBtn) {
+        zoomOutBtn.onclick = function() { 
+          console.log('🔍 Zoom out clicado');
+          if (map) map.zoomOut(); 
+        };
+        console.log('✅ Zoom out inicializado');
+      }
+      
+      // Modal Sobre
+      var aboutBtn = document.getElementById('about-btn');
+      var closeModalBtn = document.getElementById('close-modal');
+      var aboutModal = document.getElementById('about-modal');
+      
+      if (aboutBtn) {
+        aboutBtn.onclick = function() {
+          console.log('ℹ️ Botão sobre clicado');
+          if (aboutModal) aboutModal.classList.remove('modal-hidden');
+        };
+        console.log('✅ Botão sobre inicializado');
+      }
+      
+      if (closeModalBtn) {
+        closeModalBtn.onclick = function() {
+          console.log('❌ Fechar modal clicado');
+          if (aboutModal) aboutModal.classList.add('modal-hidden');
+        };
+        console.log('✅ Botão fechar modal inicializado');
+      }
+      
+      // Fechar modal ao clicar fora do conteúdo
+      if (aboutModal) {
+        aboutModal.onclick = function(e) {
+          if (e.target === this) {
+            console.log('❌ Modal fechado ao clicar fora');
+            this.classList.add('modal-hidden');
+          }
+        };
+        console.log('✅ Modal inicializado');
+      }
+      
+      console.log('✅ Todos os event listeners básicos inicializados');
+    }
     
     // FASE 2 - Funcionalidade Fullscreen
     var isFullscreen = false;
@@ -3988,17 +4052,80 @@
       autoSave: true
     };
     
-    // Toggle do painel de medição
-    measurementToggle.onclick = function() {
-      if (measurementPanel.style.display === 'none' || measurementPanel.style.display === '') {
-        measurementPanel.style.display = 'block';
-        measurementToggle.style.background = '#bbdefb';
-      } else {
-        measurementPanel.style.display = 'none';
-        measurementToggle.style.background = '#e3f2fd';
-        deactivateAllTools();
+    // Função para inicializar event listeners dos painéis
+    function initializePanelEventListeners() {
+      console.log('🔧 Inicializando event listeners dos painéis...');
+      
+      var measurementToggle = document.getElementById('measurement-toggle');
+      var measurementPanel = document.getElementById('measurement-panel');
+      var layersToggle = document.getElementById('layers-toggle');
+      var layersPanel = document.getElementById('layers-panel');
+      var basemapToggle = document.getElementById('basemap-toggle');
+      var basemapPanel = document.getElementById('basemap-panel');
+      
+      // Toggle do painel de medição
+      if (measurementToggle && measurementPanel) {
+        measurementToggle.onclick = function() {
+          console.log('📏 Toggle medição clicado');
+          if (measurementPanel.style.display === 'none' || measurementPanel.style.display === '') {
+            measurementPanel.style.display = 'block';
+            measurementToggle.style.background = '#bbdefb';
+            // Ocultar outros painéis
+            if (layersPanel) layersPanel.style.display = 'none';
+            if (basemapPanel) basemapPanel.style.display = 'none';
+            if (layersToggle) layersToggle.style.background = '#e3f2fd';
+            if (basemapToggle) basemapToggle.style.background = '#e3f2fd';
+          } else {
+            measurementPanel.style.display = 'none';
+            measurementToggle.style.background = '#e3f2fd';
+            deactivateAllTools();
+          }
+        };
+        console.log('✅ Toggle medição inicializado');
       }
-    };
+      
+      // Toggle do painel de camadas
+      if (layersToggle && layersPanel) {
+        layersToggle.onclick = function() {
+          console.log('🗂️ Toggle camadas clicado');
+          if (layersPanel.style.display === 'none' || layersPanel.style.display === '') {
+            layersPanel.style.display = 'block';
+            layersToggle.style.background = '#bbdefb';
+            // Ocultar outros painéis
+            if (measurementPanel) measurementPanel.style.display = 'none';
+            if (basemapPanel) basemapPanel.style.display = 'none';
+            if (measurementToggle) measurementToggle.style.background = '#e3f2fd';
+            if (basemapToggle) basemapToggle.style.background = '#e3f2fd';
+          } else {
+            layersPanel.style.display = 'none';
+            layersToggle.style.background = '#e3f2fd';
+          }
+        };
+        console.log('✅ Toggle camadas inicializado');
+      }
+      
+      // Toggle do painel de basemaps
+      if (basemapToggle && basemapPanel) {
+        basemapToggle.onclick = function() {
+          console.log('🗺️ Toggle basemap clicado');
+          if (basemapPanel.style.display === 'none' || basemapPanel.style.display === '') {
+            basemapPanel.style.display = 'block';
+            basemapToggle.style.background = '#bbdefb';
+            // Ocultar outros painéis
+            if (measurementPanel) measurementPanel.style.display = 'none';
+            if (layersPanel) layersPanel.style.display = 'none';
+            if (measurementToggle) measurementToggle.style.background = '#e3f2fd';
+            if (layersToggle) layersToggle.style.background = '#e3f2fd';
+          } else {
+            basemapPanel.style.display = 'none';
+            basemapToggle.style.background = '#e3f2fd';
+          }
+        };
+        console.log('✅ Toggle basemap inicializado');
+      }
+      
+      console.log('✅ Todos os event listeners dos painéis inicializados');
+    }
     
     // Funções utilitárias para medições
     function formatDistance(meters) {
@@ -4593,51 +4720,8 @@
     var layersToggle = document.getElementById('layers-toggle');
     var basemapToggle = document.getElementById('basemap-toggle');
     
-    // Toggle do painel de camadas
-    layersToggle.onclick = function() {
-      if (layersPanel.style.display === 'none' || layersPanel.style.display === '') {
-        layersPanel.style.display = 'block';
-        basemapPanel.style.display = 'none';
-        measurementPanel.style.display = 'none';
-        layersToggle.style.background = '#bbdefb';
-        basemapToggle.style.background = '#e3f2fd';
-        measurementToggle.style.background = '#e3f2fd';
-      } else {
-        layersPanel.style.display = 'none';
-        layersToggle.style.background = '#e3f2fd';
-      }
-    };
-    
-    // Toggle do painel de basemaps
-    basemapToggle.onclick = function() {
-      if (basemapPanel.style.display === 'none' || basemapPanel.style.display === '') {
-        basemapPanel.style.display = 'block';
-        layersPanel.style.display = 'none';
-        measurementPanel.style.display = 'none';
-        basemapToggle.style.background = '#bbdefb';
-        layersToggle.style.background = '#e3f2fd';
-        measurementToggle.style.background = '#e3f2fd';
-      } else {
-        basemapPanel.style.display = 'none';
-        basemapToggle.style.background = '#e3f2fd';
-      }
-    };
-    
-    // Atualizar toggle do painel de medição para fechar outros painéis
-    measurementToggle.onclick = function() {
-      if (measurementPanel.style.display === 'none' || measurementPanel.style.display === '') {
-        measurementPanel.style.display = 'block';
-        layersPanel.style.display = 'none';
-        basemapPanel.style.display = 'none';
-        measurementToggle.style.background = '#bbdefb';
-        layersToggle.style.background = '#e3f2fd';
-        basemapToggle.style.background = '#e3f2fd';
-      } else {
-        measurementPanel.style.display = 'none';
-        measurementToggle.style.background = '#e3f2fd';
-        deactivateAllTools();
-      }
-    };
+    // Event listeners dos painéis já foram inicializados na função initializePanelEventListeners()
+    // Removidos para evitar duplicação
     
     // Event listeners para basemaps
     document.querySelectorAll('.basemap-option').forEach(function(option) {
