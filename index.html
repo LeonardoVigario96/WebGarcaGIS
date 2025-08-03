@@ -1960,6 +1960,135 @@
       background: transparent !important;
       background-color: transparent !important;
     }
+
+    /* ===== REGRAS ESPECÍFICAS PARA DESKTOP ===== */
+    /* Garantir que todos os painéis e controles sejam visíveis em desktop */
+    @media (min-width: 769px) {
+      /* Mostrar todos os painéis em desktop */
+      #measurement-panel,
+      #layers-panel,
+      #basemap-panel {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        position: relative !important;
+        left: auto !important;
+        top: auto !important;
+        width: auto !important;
+        height: auto !important;
+        overflow: visible !important;
+      }
+      
+      /* Mostrar botões de ferramentas no header em desktop */
+      #measurement-toggle,
+      #layers-toggle,
+      #basemap-toggle {
+        display: inline-block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        position: relative !important;
+        left: auto !important;
+        top: auto !important;
+        width: auto !important;
+        height: auto !important;
+      }
+      
+      /* Mostrar controles de zoom customizados em desktop */
+      #zoom-btns-bar {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        position: relative !important;
+        left: auto !important;
+        top: auto !important;
+        width: auto !important;
+        height: auto !important;
+      }
+      
+      /* Mostrar mini-mapa em desktop */
+      #mini-map-container {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        position: relative !important;
+        left: auto !important;
+        top: auto !important;
+        width: auto !important;
+        height: auto !important;
+      }
+      
+      #mini-map-toggle {
+        display: inline-block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        position: relative !important;
+        left: auto !important;
+        top: auto !important;
+        width: auto !important;
+        height: auto !important;
+      }
+      
+      /* Mostrar seta norte em desktop */
+      #north-arrow {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        position: relative !important;
+        left: auto !important;
+        top: auto !important;
+        width: auto !important;
+        height: auto !important;
+      }
+      
+      /* Mostrar coordenadas em desktop */
+      #coordinates-display {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        position: relative !important;
+        left: auto !important;
+        top: auto !important;
+        width: auto !important;
+        height: auto !important;
+      }
+      
+      /* Mostrar escala em desktop */
+      .leaflet-control-scale {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        position: relative !important;
+        left: auto !important;
+        top: auto !important;
+        width: auto !important;
+        height: auto !important;
+      }
+      
+      /* Garantir que legendas e controles de opacidade sejam visíveis em desktop */
+      .info.legend,
+      .opacity-control {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        position: relative !important;
+        left: auto !important;
+        top: auto !important;
+        width: auto !important;
+        height: auto !important;
+        overflow: visible !important;
+      }
+    }
+    
+    /* ===== TOGGLE DESKTOP/MOBILE VIEW ===== */
 </style>
   <style>
 .bairro-label {
