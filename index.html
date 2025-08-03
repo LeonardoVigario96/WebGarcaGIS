@@ -2044,15 +2044,15 @@
   <div id="map-title-bar">
     <img src="imagem_gerada.png" alt="Logo" id="logo-img" />
     <span id="map-title-text">WEBGIS DO MUNICÍPIO DE GARÇA-SP</span>
-    <button id="about-btn" title="Sobre o Autor" type="button"><span class="about-btn-icon">&#9432;</span></button>
-    <button id="fullscreen-btn" title="Tela Cheia" type="button"><span class="fullscreen-btn-icon">&#128471;</span></button>
-    <button id="measurement-toggle" title="Ferramentas de Medição" type="button">📏</button>
-    <button id="layers-toggle" title="Camadas" type="button">🗂️</button>
-    <button id="basemap-toggle" title="Mapas de Fundo" type="button">🗺️</button>
+    <button id="about-btn" title="Sobre o Autor" type="button" onclick="openAboutModal()"><span class="about-btn-icon">&#9432;</span></button>
+    <button id="fullscreen-btn" title="Tela Cheia" type="button" onclick="toggleFullscreen()"><span class="fullscreen-btn-icon">&#128471;</span></button>
+    <button id="measurement-toggle" title="Ferramentas de Medição" type="button" onclick="toggleMeasurementPanel()">📏</button>
+    <button id="layers-toggle" title="Camadas" type="button" onclick="toggleLayersPanel()">🗂️</button>
+    <button id="basemap-toggle" title="Mapas de Fundo" type="button" onclick="toggleBasemapPanel()">🗺️</button>
   </div>
   <div id="about-modal" class="modal-hidden">
     <div class="modal-content">
-      <button id="close-modal" title="Fechar">&times;</button>
+      <button id="close-modal" title="Fechar" onclick="closeAboutModal()">&times;</button>
       <h2>Sobre o Autor</h2>
       <div style="display: flex; align-items: flex-start; gap: 32px; flex-wrap: wrap;">
         <div style="min-width: 270px; max-width: 480px;">
@@ -2079,7 +2079,7 @@
     </div>
     <!-- Bloco de zoom separado -->
     <div id="zoom-btns-bar">
-      <button id="zoom-in-btn" class="zoom-btn" title="Zoom In" aria-label="Zoom In">
+      <button id="zoom-in-btn" class="zoom-btn" title="Zoom In" aria-label="Zoom In" onclick="zoomIn()">
         <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
           <circle cx="14" cy="14" r="12" fill="#f7f7f7" stroke="#888" stroke-width="2"/>
           <g stroke="#555" stroke-width="2" stroke-linecap="round">
@@ -2090,7 +2090,7 @@
           <line x1="21" y1="21" x2="25" y2="25" stroke="#888" stroke-width="2"/>
         </svg>
       </button>
-      <button id="zoom-out-btn" class="zoom-btn" title="Zoom Out" aria-label="Zoom Out">
+      <button id="zoom-out-btn" class="zoom-btn" title="Zoom Out" aria-label="Zoom Out" onclick="zoomOut()">
         <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
           <circle cx="14" cy="14" r="12" fill="#f7f7f7" stroke="#888" stroke-width="2"/>
           <g stroke="#555" stroke-width="2" stroke-linecap="round">
@@ -2491,6 +2491,149 @@
       }
       
       console.log('✅ Estilos mobile removidos');
+    }
+    
+    // Funções globais para onclick inline
+    function openAboutModal() {
+      console.log('ℹ️ Abrindo modal sobre...');
+      var modal = document.getElementById('about-modal');
+      if (modal) {
+        modal.classList.remove('modal-hidden');
+      }
+    }
+    
+    function closeAboutModal() {
+      console.log('❌ Fechando modal sobre...');
+      var modal = document.getElementById('about-modal');
+      if (modal) {
+        modal.classList.add('modal-hidden');
+      }
+    }
+    
+    function zoomIn() {
+      console.log('🔍 Zoom in...');
+      if (map) {
+        map.zoomIn();
+      }
+    }
+    
+    function zoomOut() {
+      console.log('🔍 Zoom out...');
+      if (map) {
+        map.zoomOut();
+      }
+    }
+    
+    function toggleMeasurementPanel() {
+      console.log('📏 Toggle painel medição...');
+      var panel = document.getElementById('measurement-panel');
+      var toggle = document.getElementById('measurement-toggle');
+      var layersPanel = document.getElementById('layers-panel');
+      var basemapPanel = document.getElementById('basemap-panel');
+      var layersToggle = document.getElementById('layers-toggle');
+      var basemapToggle = document.getElementById('basemap-toggle');
+      
+      if (panel && toggle) {
+        if (panel.style.display === 'none' || panel.style.display === '') {
+          panel.style.display = 'block';
+          toggle.style.background = '#bbdefb';
+          // Ocultar outros painéis
+          if (layersPanel) layersPanel.style.display = 'none';
+          if (basemapPanel) basemapPanel.style.display = 'none';
+          if (layersToggle) layersToggle.style.background = '#e3f2fd';
+          if (basemapToggle) basemapToggle.style.background = '#e3f2fd';
+        } else {
+          panel.style.display = 'none';
+          toggle.style.background = '#e3f2fd';
+          if (typeof deactivateAllTools === 'function') {
+            deactivateAllTools();
+          }
+        }
+      }
+    }
+    
+    function toggleLayersPanel() {
+      console.log('🗂️ Toggle painel camadas...');
+      var panel = document.getElementById('layers-panel');
+      var toggle = document.getElementById('layers-toggle');
+      var measurementPanel = document.getElementById('measurement-panel');
+      var basemapPanel = document.getElementById('basemap-panel');
+      var measurementToggle = document.getElementById('measurement-toggle');
+      var basemapToggle = document.getElementById('basemap-toggle');
+      
+      if (panel && toggle) {
+        if (panel.style.display === 'none' || panel.style.display === '') {
+          panel.style.display = 'block';
+          toggle.style.background = '#bbdefb';
+          // Ocultar outros painéis
+          if (measurementPanel) measurementPanel.style.display = 'none';
+          if (basemapPanel) basemapPanel.style.display = 'none';
+          if (measurementToggle) measurementToggle.style.background = '#e3f2fd';
+          if (basemapToggle) basemapToggle.style.background = '#e3f2fd';
+        } else {
+          panel.style.display = 'none';
+          toggle.style.background = '#e3f2fd';
+        }
+      }
+    }
+    
+    function toggleBasemapPanel() {
+      console.log('🗺️ Toggle painel basemap...');
+      var panel = document.getElementById('basemap-panel');
+      var toggle = document.getElementById('basemap-toggle');
+      var measurementPanel = document.getElementById('measurement-panel');
+      var layersPanel = document.getElementById('layers-panel');
+      var measurementToggle = document.getElementById('measurement-toggle');
+      var layersToggle = document.getElementById('layers-toggle');
+      
+      if (panel && toggle) {
+        if (panel.style.display === 'none' || panel.style.display === '') {
+          panel.style.display = 'block';
+          toggle.style.background = '#bbdefb';
+          // Ocultar outros painéis
+          if (measurementPanel) measurementPanel.style.display = 'none';
+          if (layersPanel) layersPanel.style.display = 'none';
+          if (measurementToggle) measurementToggle.style.background = '#e3f2fd';
+          if (layersToggle) layersToggle.style.background = '#e3f2fd';
+        } else {
+          panel.style.display = 'none';
+          toggle.style.background = '#e3f2fd';
+        }
+      }
+    }
+    
+    function toggleFullscreen() {
+      console.log('⛶ Toggle fullscreen...');
+      var mapContainer = document.getElementById('map');
+      var titleBar = document.getElementById('map-title-bar');
+      
+      if (!document.fullscreenElement) {
+        // Entrar em fullscreen
+        if (mapContainer.requestFullscreen) {
+          mapContainer.requestFullscreen();
+        } else if (mapContainer.webkitRequestFullscreen) {
+          mapContainer.webkitRequestFullscreen();
+        } else if (mapContainer.msRequestFullscreen) {
+          mapContainer.msRequestFullscreen();
+        }
+        
+        // Ocultar apenas o texto do título
+        var titleText = document.getElementById('map-title-text');
+        if (titleText) titleText.style.display = 'none';
+      } else {
+        // Sair do fullscreen
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+          document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) {
+          document.msExitFullscreen();
+        }
+        
+        // Mostrar o texto do título novamente
+        var titleText = document.getElementById('map-title-text');
+        if (titleText) titleText.style.display = 'inline';
+      }
     }
     
     // Inicializar toggle quando o script carregar
