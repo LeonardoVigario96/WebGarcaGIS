@@ -1685,6 +1685,281 @@
       background: transparent !important;
       z-index: 1 !important;
     }
+
+    /* ===== CORREÇÕES RADICAIS PARA MOBILE - REMOÇÃO DE ELEMENTOS BRANCOS ===== */
+    
+    /* Forçar remoção de qualquer elemento branco problemático */
+    @media (max-width: 768px) {
+      /* Remover TODOS os elementos que podem estar causando sobreposição branca */
+      #mini-map-container,
+      #mini-map-toggle,
+      #zoom-btns-bar,
+      #north-arrow,
+      #measurement-panel,
+      #layers-panel,
+      #basemap-panel,
+      #measurement-toggle,
+      #layers-toggle,
+      #basemap-toggle,
+      #coordinates-display,
+      .leaflet-control-scale,
+      #about-modal:not(.modal-hidden) {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        position: absolute !important;
+        left: -9999px !important;
+        top: -9999px !important;
+        width: 0 !important;
+        height: 0 !important;
+        overflow: hidden !important;
+      }
+      
+      /* Garantir que o mapa seja sempre visível e em primeiro plano */
+      #map {
+        z-index: 1 !important;
+        position: relative !important;
+        background: transparent !important;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+      }
+      
+      /* Garantir que os panes do Leaflet sejam visíveis */
+      .leaflet-pane {
+        z-index: 1 !important;
+        background: transparent !important;
+      }
+      
+      /* Garantir que o tile pane seja visível */
+      .leaflet-tile-pane {
+        z-index: 1 !important;
+        background: transparent !important;
+      }
+      
+      /* Garantir que o overlay pane seja visível */
+      .leaflet-overlay-pane {
+        z-index: 1 !important;
+        background: transparent !important;
+      }
+      
+      /* Garantir que o marker pane seja visível */
+      .leaflet-marker-pane {
+        z-index: 1 !important;
+        background: transparent !important;
+      }
+      
+      /* Garantir que o tooltip pane seja visível */
+      .leaflet-tooltip-pane {
+        z-index: 1 !important;
+        background: transparent !important;
+      }
+      
+      /* Garantir que o popup pane seja visível */
+      .leaflet-popup-pane {
+        z-index: 1 !important;
+        background: transparent !important;
+      }
+      
+      /* Garantir que o shadow pane seja visível */
+      .leaflet-shadow-pane {
+        z-index: 1 !important;
+        background: transparent !important;
+      }
+      
+      /* Garantir que o tile seja visível */
+      .leaflet-tile {
+        background: transparent !important;
+      }
+      
+      /* Remover qualquer fundo branco do body */
+      body {
+        background: transparent !important;
+        background-color: transparent !important;
+      }
+      
+      /* Remover qualquer fundo branco do html */
+      html {
+        background: transparent !important;
+        background-color: transparent !important;
+      }
+      
+      /* Garantir que o header não sobreponha o mapa */
+      #map-title-bar {
+        z-index: 2000 !important;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        height: 50px !important;
+        font-size: 0.9rem !important;
+        padding: 0 10px !important;
+      }
+      
+      /* Garantir que o logo seja visível */
+      #logo-img {
+        max-height: 28px !important;
+        padding: 2px !important;
+        background: rgba(255,255,255,0.25) !important;
+      }
+      
+      /* Garantir que o mapa ocupe o espaço correto */
+      #map {
+        height: calc(100vh - 50px) !important;
+        margin-top: 50px !important;
+        width: 100vw !important;
+        position: relative !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+      }
+      
+      /* Garantir que controles essenciais fiquem visíveis */
+      .leaflet-control {
+        z-index: 1000 !important;
+        background: rgba(255, 255, 255, 0.9) !important;
+      }
+      
+      /* Ajustar legenda para mobile */
+      .info.legend {
+        font-size: 12px !important;
+        min-width: 140px !important;
+        max-width: 85vw !important;
+        padding: 8px !important;
+        border-radius: 8px !important;
+        bottom: 60px !important;
+        left: 10px !important;
+        max-height: 50vh !important;
+        overflow-y: auto !important;
+        background: rgba(255, 255, 255, 0.95) !important;
+        z-index: 1000 !important;
+      }
+      
+      /* Ajustar controles de opacidade para mobile */
+      .opacity-control {
+        font-size: 12px !important;
+        min-width: 140px !important;
+        max-width: 85vw !important;
+        padding: 8px !important;
+        border-radius: 8px !important;
+        background: rgba(255, 255, 255, 0.95) !important;
+        z-index: 1000 !important;
+      }
+      
+      /* Ajustar controles Leaflet para mobile */
+      .leaflet-control-layers {
+        font-size: 12px !important;
+        max-width: 85vw !important;
+        border-radius: 8px !important;
+        padding: 6px !important;
+        background: rgba(255, 255, 255, 0.95) !important;
+        z-index: 1000 !important;
+      }
+      
+      .leaflet-control-layers-toggle {
+        width: 36px !important;
+        height: 36px !important;
+        border-radius: 8px !important;
+        background: rgba(255, 255, 255, 0.95) !important;
+      }
+      
+      .leaflet-control-zoom a {
+        width: 36px !important;
+        height: 36px !important;
+        border-radius: 6px !important;
+        font-size: 14px !important;
+        line-height: 36px !important;
+        background: rgba(255, 255, 255, 0.95) !important;
+      }
+      
+      /* Ajustar botão toggle para mobile */
+      #view-toggle {
+        bottom: 10px !important;
+        right: 10px !important;
+        width: 48px !important;
+        height: 48px !important;
+        font-size: 20px !important;
+        border-radius: 10px !important;
+        z-index: 1200 !important;
+        background: white !important;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.2) !important;
+      }
+    }
+    
+    /* Mobile muito pequeno */
+    @media (max-width: 480px) {
+      #map-title-bar {
+        height: 45px !important;
+        font-size: 0.85rem !important;
+      }
+      
+      #logo-img {
+        max-height: 24px !important;
+      }
+      
+      #map {
+        height: calc(100vh - 45px) !important;
+        margin-top: 45px !important;
+      }
+      
+      .info.legend {
+        font-size: 11px !important;
+        min-width: 120px !important;
+        max-width: 80vw !important;
+        padding: 6px !important;
+        bottom: 55px !important;
+        left: 8px !important;
+      }
+      
+      .opacity-control {
+        font-size: 11px !important;
+        min-width: 120px !important;
+        max-width: 80vw !important;
+        padding: 6px !important;
+      }
+      
+      #view-toggle {
+        bottom: 8px !important;
+        right: 8px !important;
+        width: 44px !important;
+        height: 44px !important;
+        font-size: 18px !important;
+      }
+    }
+    
+    /* Remover qualquer pseudo-elemento que possa estar causando problemas */
+    body::before,
+    body::after,
+    html::before,
+    html::after,
+    #map::before,
+    #map::after {
+      display: none !important;
+      content: none !important;
+    }
+    
+    /* Garantir que não haja elementos flutuantes problemáticos */
+    * {
+      box-sizing: border-box;
+    }
+    
+    /* Forçar transparência em elementos que podem estar causando problemas */
+    .leaflet-container {
+      background: transparent !important;
+    }
+    
+    .leaflet-map-pane {
+      background: transparent !important;
+    }
+    
+    /* Remover qualquer elemento com fundo branco que possa estar sobrepondo */
+    div[style*="background: white"],
+    div[style*="background-color: white"],
+    div[style*="background: #fff"],
+    div[style*="background-color: #fff"] {
+      background: transparent !important;
+      background-color: transparent !important;
+    }
 </style>
   <style>
 .bairro-label {
@@ -2220,6 +2495,88 @@
     
     // Inicializar toggle quando o script carregar
     initializeMobileToggle();
+    
+    // Função para detectar e remover elementos brancos problemáticos
+    function removeWhiteOverlays() {
+      console.log('🔍 Procurando elementos brancos problemáticos...');
+      
+      // Lista de elementos que podem estar causando problemas
+      var problematicElements = [
+        '#mini-map-container',
+        '#mini-map-toggle', 
+        '#zoom-btns-bar',
+        '#north-arrow',
+        '#measurement-panel',
+        '#layers-panel',
+        '#basemap-panel',
+        '#measurement-toggle',
+        '#layers-toggle',
+        '#basemap-toggle',
+        '#coordinates-display',
+        '.leaflet-control-scale'
+      ];
+      
+      // Remover elementos problemáticos
+      problematicElements.forEach(function(selector) {
+        var elements = document.querySelectorAll(selector);
+        elements.forEach(function(element) {
+          if (element) {
+            console.log('❌ Removendo elemento:', selector);
+            element.style.display = 'none';
+            element.style.visibility = 'hidden';
+            element.style.opacity = '0';
+            element.style.pointerEvents = 'none';
+            element.style.position = 'absolute';
+            element.style.left = '-9999px';
+            element.style.top = '-9999px';
+            element.style.width = '0';
+            element.style.height = '0';
+            element.style.overflow = 'hidden';
+          }
+        });
+      });
+      
+      // Procurar por elementos com fundo branco que podem estar sobrepondo
+      var allElements = document.querySelectorAll('*');
+      allElements.forEach(function(element) {
+        var style = window.getComputedStyle(element);
+        var background = style.backgroundColor;
+        var position = style.position;
+        var zIndex = parseInt(style.zIndex) || 0;
+        
+        // Se é um elemento com fundo branco e está sobrepondo o mapa
+        if ((background === 'rgb(255, 255, 255)' || background === 'white') && 
+            (position === 'fixed' || position === 'absolute') && 
+            zIndex > 1 && 
+            element.id !== 'map-title-bar' && 
+            element.id !== 'view-toggle' &&
+            !element.classList.contains('leaflet-control')) {
+          
+          console.log('❌ Removendo elemento branco problemático:', element.tagName, element.id, element.className);
+          element.style.display = 'none';
+          element.style.visibility = 'hidden';
+          element.style.opacity = '0';
+          element.style.pointerEvents = 'none';
+        }
+      });
+      
+      console.log('✅ Limpeza de elementos brancos concluída');
+    }
+    
+    // Executar limpeza quando a página carregar
+    document.addEventListener('DOMContentLoaded', function() {
+      setTimeout(removeWhiteOverlays, 1000);
+      setTimeout(removeWhiteOverlays, 2000);
+      setTimeout(removeWhiteOverlays, 3000);
+    });
+    
+    // Executar limpeza quando o mapa for inicializado
+    setTimeout(function() {
+      if (map) {
+        removeWhiteOverlays();
+        map.invalidateSize();
+      }
+    }, 1000);
     
     // Inicializa o mapa
     map = L.map('map', {
