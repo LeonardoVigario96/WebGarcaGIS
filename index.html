@@ -1484,6 +1484,207 @@
         max-width: 95vw !important;
       }
     }
+    
+    /* ===== CORREÇÕES ESPECÍFICAS PARA MOBILE ===== */
+    
+    /* Ocultar elementos problemáticos no mobile */
+    @media (max-width: 768px) {
+      /* Ocultar mini-mapa no mobile para evitar problemas */
+      #mini-map-container {
+        display: none !important;
+      }
+      
+      #mini-map-toggle {
+        display: none !important;
+      }
+      
+      /* Ocultar controles de zoom customizados no mobile */
+      #zoom-btns-bar {
+        display: none !important;
+      }
+      
+      /* Ocultar seta norte no mobile */
+      #north-arrow {
+        display: none !important;
+      }
+      
+      /* Ocultar painéis de ferramentas no mobile por padrão */
+      #measurement-panel,
+      #layers-panel,
+      #basemap-panel {
+        display: none !important;
+      }
+      
+      /* Garantir que o mapa seja visível */
+      #map {
+        z-index: 1 !important;
+        position: relative !important;
+      }
+      
+      /* Remover qualquer sobreposição branca */
+      .leaflet-pane {
+        z-index: 1 !important;
+      }
+      
+      /* Garantir que controles essenciais fiquem visíveis */
+      .leaflet-control {
+        z-index: 1000 !important;
+      }
+      
+      /* Ocultar botões de ferramentas no header no mobile */
+      #measurement-toggle,
+      #layers-toggle,
+      #basemap-toggle {
+        display: none !important;
+      }
+      
+      /* Ajustar header para mobile */
+      #map-title-bar {
+        height: 50px !important;
+        font-size: 0.9rem !important;
+        padding: 0 10px !important;
+      }
+      
+      /* Ajustar logo para mobile */
+      #logo-img {
+        max-height: 28px !important;
+        padding: 2px !important;
+      }
+      
+      /* Ajustar mapa para mobile */
+      #map {
+        height: calc(100vh - 50px) !important;
+        margin-top: 50px !important;
+      }
+      
+      /* Ajustar legenda para mobile */
+      .info.legend {
+        font-size: 12px !important;
+        min-width: 140px !important;
+        max-width: 85vw !important;
+        padding: 8px !important;
+        border-radius: 8px !important;
+        bottom: 60px !important;
+        left: 10px !important;
+        max-height: 50vh !important;
+        overflow-y: auto !important;
+      }
+      
+      /* Ajustar controles de opacidade para mobile */
+      .opacity-control {
+        font-size: 12px !important;
+        min-width: 140px !important;
+        max-width: 85vw !important;
+        padding: 8px !important;
+        border-radius: 8px !important;
+      }
+      
+      /* Ajustar controles Leaflet para mobile */
+      .leaflet-control-layers {
+        font-size: 12px !important;
+        max-width: 85vw !important;
+        border-radius: 8px !important;
+        padding: 6px !important;
+      }
+      
+      .leaflet-control-layers-toggle {
+        width: 36px !important;
+        height: 36px !important;
+        border-radius: 8px !important;
+      }
+      
+      .leaflet-control-zoom a {
+        width: 36px !important;
+        height: 36px !important;
+        border-radius: 6px !important;
+        font-size: 14px !important;
+        line-height: 36px !important;
+      }
+      
+      /* Ajustar botão toggle para mobile */
+      #view-toggle {
+        bottom: 10px !important;
+        right: 10px !important;
+        width: 48px !important;
+        height: 48px !important;
+        font-size: 20px !important;
+        border-radius: 10px !important;
+        z-index: 1200 !important;
+      }
+      
+      /* Ocultar coordenadas no mobile para economizar espaço */
+      #coordinates-display {
+        display: none !important;
+      }
+      
+      /* Ocultar barra de escala no mobile */
+      .leaflet-control-scale {
+        display: none !important;
+      }
+    }
+    
+    /* Mobile muito pequeno */
+    @media (max-width: 480px) {
+      #map-title-bar {
+        height: 45px !important;
+        font-size: 0.85rem !important;
+      }
+      
+      #logo-img {
+        max-height: 24px !important;
+      }
+      
+      #map {
+        height: calc(100vh - 45px) !important;
+        margin-top: 45px !important;
+      }
+      
+      .info.legend {
+        font-size: 11px !important;
+        min-width: 120px !important;
+        max-width: 80vw !important;
+        padding: 6px !important;
+        bottom: 55px !important;
+        left: 8px !important;
+      }
+      
+      .opacity-control {
+        font-size: 11px !important;
+        min-width: 120px !important;
+        max-width: 80vw !important;
+        padding: 6px !important;
+      }
+      
+      #view-toggle {
+        bottom: 8px !important;
+        right: 8px !important;
+        width: 44px !important;
+        height: 44px !important;
+        font-size: 18px !important;
+      }
+    }
+    
+    /* Garantir que não haja elementos brancos cobrindo a tela */
+    body::before,
+    body::after {
+      display: none !important;
+    }
+    
+    /* Remover qualquer elemento que possa estar causando sobreposição */
+    * {
+      box-sizing: border-box;
+    }
+    
+    /* Garantir que o body não tenha fundo branco */
+    body {
+      background: transparent !important;
+    }
+    
+    /* Garantir que o mapa seja sempre visível */
+    #map {
+      background: transparent !important;
+      z-index: 1 !important;
+    }
 </style>
   <style>
 .bairro-label {
@@ -1809,19 +2010,49 @@
     
     // Função para aplicar estilos mobile
     function applyMobileStyles() {
+      console.log('📱 Aplicando estilos mobile...');
+      
+      // Ocultar elementos problemáticos no mobile
+      var miniMapContainer = document.getElementById('mini-map-container');
+      var miniMapToggle = document.getElementById('mini-map-toggle');
+      var zoomBtnsBar = document.getElementById('zoom-btns-bar');
+      var northArrow = document.getElementById('north-arrow');
+      var measurementPanel = document.getElementById('measurement-panel');
+      var layersPanel = document.getElementById('layers-panel');
+      var basemapPanel = document.getElementById('basemap-panel');
+      var measurementToggle = document.getElementById('measurement-toggle');
+      var layersToggle = document.getElementById('layers-toggle');
+      var basemapToggle = document.getElementById('basemap-toggle');
+      var coordinatesDisplay = document.getElementById('coordinates-display');
+      var scaleControl = document.querySelector('.leaflet-control-scale');
+      
+      // Ocultar elementos problemáticos
+      if (miniMapContainer) miniMapContainer.style.display = 'none';
+      if (miniMapToggle) miniMapToggle.style.display = 'none';
+      if (zoomBtnsBar) zoomBtnsBar.style.display = 'none';
+      if (northArrow) northArrow.style.display = 'none';
+      if (measurementPanel) measurementPanel.style.display = 'none';
+      if (layersPanel) layersPanel.style.display = 'none';
+      if (basemapPanel) basemapPanel.style.display = 'none';
+      if (measurementToggle) measurementToggle.style.display = 'none';
+      if (layersToggle) layersToggle.style.display = 'none';
+      if (basemapToggle) basemapToggle.style.display = 'none';
+      if (coordinatesDisplay) coordinatesDisplay.style.display = 'none';
+      if (scaleControl) scaleControl.style.display = 'none';
+      
       // Header mobile
       var titleBar = document.getElementById('map-title-bar');
       if (titleBar) {
         titleBar.style.height = '50px';
-        titleBar.style.fontSize = '1rem';
+        titleBar.style.fontSize = '0.9rem';
         titleBar.style.padding = '0 10px';
       }
       
       // Logo mobile
       var logo = document.getElementById('logo-img');
       if (logo) {
-        logo.style.maxHeight = '30px';
-        logo.style.padding = '3px';
+        logo.style.maxHeight = '28px';
+        logo.style.padding = '2px';
       }
       
       // Mapa mobile
@@ -1829,56 +2060,91 @@
       if (mapElement) {
         mapElement.style.height = 'calc(100vh - 50px)';
         mapElement.style.marginTop = '50px';
+        mapElement.style.zIndex = '1';
+        mapElement.style.position = 'relative';
       }
       
       // Controles mobile
       var controls = document.querySelectorAll('.opacity-control, .info.legend');
       controls.forEach(function(control) {
-        control.style.fontSize = '13px';
+        control.style.fontSize = '12px';
         control.style.minWidth = '140px';
-        control.style.maxWidth = '90vw';
-        control.style.padding = '10px';
-        control.style.borderRadius = '10px';
+        control.style.maxWidth = '85vw';
+        control.style.padding = '8px';
+        control.style.borderRadius = '8px';
       });
       
       // Controles Leaflet mobile
       var leafletControls = document.querySelectorAll('.leaflet-control-layers');
       leafletControls.forEach(function(control) {
-        control.style.fontSize = '13px';
-        control.style.maxWidth = '90vw';
-        control.style.borderRadius = '10px';
+        control.style.fontSize = '12px';
+        control.style.maxWidth = '85vw';
+        control.style.borderRadius = '8px';
         control.style.padding = '6px';
       });
       
       var leafletToggles = document.querySelectorAll('.leaflet-control-layers-toggle');
       leafletToggles.forEach(function(toggle) {
-        toggle.style.width = '40px';
-        toggle.style.height = '40px';
-        toggle.style.borderRadius = '10px';
+        toggle.style.width = '36px';
+        toggle.style.height = '36px';
+        toggle.style.borderRadius = '8px';
       });
       
       var zoomControls = document.querySelectorAll('.leaflet-control-zoom a');
       zoomControls.forEach(function(zoom) {
-        zoom.style.width = '40px';
-        zoom.style.height = '40px';
-        zoom.style.borderRadius = '8px';
-        zoom.style.fontSize = '16px';
-        zoom.style.lineHeight = '40px';
+        zoom.style.width = '36px';
+        zoom.style.height = '36px';
+        zoom.style.borderRadius = '6px';
+        zoom.style.fontSize = '14px';
+        zoom.style.lineHeight = '36px';
       });
       
       // Botão toggle mobile
       if (toggleBtn) {
-        toggleBtn.style.bottom = '15px';
-        toggleBtn.style.right = '15px';
-        toggleBtn.style.width = '50px';
-        toggleBtn.style.height = '50px';
-        toggleBtn.style.fontSize = '22px';
-        toggleBtn.style.borderRadius = '12px';
+        toggleBtn.style.bottom = '10px';
+        toggleBtn.style.right = '10px';
+        toggleBtn.style.width = '48px';
+        toggleBtn.style.height = '48px';
+        toggleBtn.style.fontSize = '20px';
+        toggleBtn.style.borderRadius = '10px';
+        toggleBtn.style.zIndex = '1200';
       }
+      
+      console.log('✅ Estilos mobile aplicados');
     }
     
     // Função para remover estilos mobile
     function removeMobileStyles() {
+      console.log('💻 Removendo estilos mobile...');
+      
+      // Mostrar elementos que foram ocultados no mobile
+      var miniMapContainer = document.getElementById('mini-map-container');
+      var miniMapToggle = document.getElementById('mini-map-toggle');
+      var zoomBtnsBar = document.getElementById('zoom-btns-bar');
+      var northArrow = document.getElementById('north-arrow');
+      var measurementPanel = document.getElementById('measurement-panel');
+      var layersPanel = document.getElementById('layers-panel');
+      var basemapPanel = document.getElementById('basemap-panel');
+      var measurementToggle = document.getElementById('measurement-toggle');
+      var layersToggle = document.getElementById('layers-toggle');
+      var basemapToggle = document.getElementById('basemap-toggle');
+      var coordinatesDisplay = document.getElementById('coordinates-display');
+      var scaleControl = document.querySelector('.leaflet-control-scale');
+      
+      // Mostrar elementos novamente
+      if (miniMapContainer) miniMapContainer.style.display = '';
+      if (miniMapToggle) miniMapToggle.style.display = '';
+      if (zoomBtnsBar) zoomBtnsBar.style.display = '';
+      if (northArrow) northArrow.style.display = '';
+      if (measurementPanel) measurementPanel.style.display = '';
+      if (layersPanel) layersPanel.style.display = '';
+      if (basemapPanel) basemapPanel.style.display = '';
+      if (measurementToggle) measurementToggle.style.display = '';
+      if (layersToggle) layersToggle.style.display = '';
+      if (basemapToggle) basemapToggle.style.display = '';
+      if (coordinatesDisplay) coordinatesDisplay.style.display = '';
+      if (scaleControl) scaleControl.style.display = '';
+      
       // Header desktop
       var titleBar = document.getElementById('map-title-bar');
       if (titleBar) {
@@ -1899,6 +2165,8 @@
       if (mapElement) {
         mapElement.style.height = '';
         mapElement.style.marginTop = '';
+        mapElement.style.zIndex = '';
+        mapElement.style.position = '';
       }
       
       // Controles desktop
@@ -1944,7 +2212,10 @@
         toggleBtn.style.height = '';
         toggleBtn.style.fontSize = '';
         toggleBtn.style.borderRadius = '';
+        toggleBtn.style.zIndex = '';
       }
+      
+      console.log('✅ Estilos mobile removidos');
     }
     
     // Inicializar toggle quando o script carregar
