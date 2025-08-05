@@ -1,80 +1,133 @@
-# WebGIS do Município de Garça-SP
+# 🌍 WebGIS GARCA - Sistema de Informações Geográficas
 
-## 🌍 Sobre o Projeto
+Um sistema WebGIS interativo para visualização de dados geográficos da região de GARCA, desenvolvido com tecnologias web modernas.
 
-Este é um Sistema de Informações Geográficas (WebGIS) desenvolvido para o município de Garça-SP, oferecendo uma interface interativa para visualização e análise de dados geográficos da região.
+## 🚀 Acesso Público
 
-## 🚀 Funcionalidades
+**URL do Projeto**: [https://leonardovigario96.github.io/WebGarcaGIS/](https://leonardovigario96.github.io/WebGarcaGIS/)
 
-- **Mapas Interativos**: Visualização de diferentes camadas geográficas
-- **Múltiplas Camadas**: 
-  - Aquíferos
-  - Bairros
-  - Conchas
-  - Hidrografia
-  - Lagos Artificiais
-  - Litologia
-  - Malha Rodoviária
-  - Município
-  - Vias de Acesso
-- **Controles de Navegação**: Zoom, pan, busca de localização
-- **Interface Responsiva**: Compatível com desktop, tablet e mobile
-- **Múltiplas Camadas de Base**: OpenStreetMap, Imagens de Satélite, Topografia
+## 📋 Funcionalidades
+
+### 🗺️ Camadas Disponíveis
+- **Geologia (LITO_GARCA)**: Informações litológicas da região
+- **Aquíferos (AQUIF_GARCA)**: Mapeamento de aquíferos
+- **Hidrografia (HID_SP)**: Rede hidrográfica do estado
+- **Concha (Concha_GARCA)**: Dados específicos da concha
+- **Lago Artificial (LagoArtificial_GARCA)**: Informações sobre lago artificial
+- **Município (MUN_GARCA)**: Limites municipais
+- **Bairros (Bairros_GARCA)**: Divisão por bairros
+- **Malha Rodoviária**: Rede de estradas
+- **Vias de Acesso (ViasAcessos_GARCA)**: Vias de acesso da região
+
+### 📱 Recursos Mobile
+- **Interface Responsiva**: Otimizada para dispositivos móveis
+- **Controles Adaptativos**: Botões reposicionados para melhor usabilidade
+- **Legenda Interativa**: Sistema de rolagem e toggle para mobile
+- **Zoom Horizontal**: Controles de zoom organizados horizontalmente
+- **Touch-Friendly**: Interface otimizada para toque
+
+### 🎛️ Controles Disponíveis
+- **Zoom In/Out**: Controles de aproximação e afastamento
+- **Basemap Toggle**: Alternância entre mapas de fundo
+- **Layer Control**: Controle de visibilidade das camadas
+- **Measurement Tools**: Ferramentas de medição
+- **Fullscreen Mode**: Modo tela cheia
+- **Legend Toggle**: Mostrar/ocultar legenda (mobile)
 
 ## 🛠️ Tecnologias Utilizadas
 
-- **Leaflet.js**: Biblioteca JavaScript para mapas interativos
-- **HTML5/CSS3**: Interface moderna e responsiva
+- **HTML5/CSS3/JavaScript**: Base do desenvolvimento
+- **Leaflet.js**: Biblioteca para mapas interativos
 - **GeoJSON**: Formato de dados geográficos
-- **GitHub Pages**: Hospedagem gratuita
+- **GitHub Pages**: Hospedagem e deploy automático
 
 ## 📁 Estrutura do Projeto
 
 ```
-GARCA/
-├── index.html              # Interface principal do WebGIS
-├── index-basico.html       # Versão básica
-├── index-restaurado.html   # Versão restaurada
-├── *.geojson              # Arquivos de dados geográficos
-├── *.qmd                  # Documentação Quarto
-├── README.md              # Este arquivo
-└── .gitignore             # Configuração do Git
+WebGarcaGIS/
+├── index.html                 # Página principal (versão otimizada)
+├── index-otimizado.html       # Versão otimizada com melhorias mobile
+├── *.geojson                  # Arquivos de dados geográficos
+├── *.qmd                      # Documentação das camadas
+├── README.md                  # Este arquivo
+├── dev-server.bat            # Script para servidor local
+└── docs/                     # Documentação adicional
 ```
 
-## 🌐 Acesso
+## 🚀 Como Executar Localmente
 
-**URL Pública:** [https://leonardovigario96.github.io/WebGarcaSP/](https://leonardovigario96.github.io/WebGarcaSP/)
+### Opção 1: Servidor Python (Recomendado)
+```bash
+# Execute o script de desenvolvimento
+.\dev-server.bat
 
-## 📊 Camadas Disponíveis
+# Acesse no navegador
+http://localhost:8000
+```
 
-1. **AQUIF_GARCA.geojson** - Aquíferos da região
-2. **Bairros_GARCA.geojson** - Divisão por bairros
-3. **Concha_GARCA.geojson** - Conchas geológicas
-4. **HID_SP.geojson** - Hidrografia do estado
-5. **LagoArtificial_GARCA.geojson** - Lagos artificiais
-6. **LITO_GARCA.geojson** - Litologia
-7. **MalhaRodoviaria.geojson** - Rede rodoviária
-8. **MUN_GARCA.geojson** - Limites municipais
-9. **ViasAcessos_GARCA.geojson** - Vias de acesso
+### Opção 2: Servidor HTTP Simples
+```bash
+# Python 3
+python -m http.server 8000
 
-## 👨‍💻 Desenvolvedor
+# Python 2
+python -m SimpleHTTPServer 8000
+```
+
+## 📱 Acesso Mobile
+
+Para testar no mobile, use o IP local da sua máquina:
+```
+http://[SEU_IP_LOCAL]:8000
+```
+
+Para encontrar seu IP local:
+```bash
+ipconfig
+```
+
+## 🔧 Desenvolvimento
+
+### Estrutura de Arquivos
+- **GeoJSON**: Dados geográficos em formato padrão
+- **QMD**: Documentação das camadas (Quarto Markdown)
+- **HTML**: Interface principal com CSS e JavaScript integrados
+
+### Melhorias Implementadas
+- ✅ Sistema de rolagem para legenda mobile
+- ✅ Reposicionamento de ícones para evitar sobreposição
+- ✅ Controles de zoom na horizontal
+- ✅ Toggle de legenda para mobile
+- ✅ Otimização de touch-action para rolagem
+- ✅ Interface responsiva completa
+
+## 📊 Dados Geográficos
+
+Todos os dados estão em formato GeoJSON e incluem:
+- Informações de geometria (pontos, linhas, polígonos)
+- Propriedades descritivas
+- Estilização visual
+- Metadados das camadas
+
+## 🤝 Contribuição
+
+Para contribuir com o projeto:
+1. Faça um fork do repositório
+2. Crie uma branch para sua feature
+3. Commit suas mudanças
+4. Push para a branch
+5. Abra um Pull Request
+
+## 📄 Licença
+
+Este projeto está sob licença MIT. Veja o arquivo LICENSE para mais detalhes.
+
+## 👨‍💻 Autor
 
 **Leonardo Vigário**
-- LinkedIn: [linkedin.com/in/leonardovigario](https://www.linkedin.com/in/leonardovigario/)
-- WhatsApp: (31) 97583-7360
-
-## 📝 Licença
-
-Este projeto está sob licença MIT. Sinta-se livre para usar, modificar e distribuir.
-
-## 🔄 Como Contribuir
-
-1. Faça um fork do projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
-5. Abra um Pull Request
+- GitHub: [@LeonardoVigario96](https://github.com/LeonardoVigario96)
+- Projeto: [WebGarcaGIS](https://github.com/LeonardoVigario96/WebGarcaGIS)
 
 ---
 
-**Desenvolvido com ❤️ para o município de Garça-SP** 
+**🌍 Explore os dados geográficos de GARCA de forma interativa e responsiva!** 
