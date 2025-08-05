@@ -1,4 +1,4 @@
-# 🌍 WebGIS GARCA - Sistema de Informações Geográficas
+# 🌍 WebGIS GARÇA - Sistema de Informações Geográficas
 
 Um sistema WebGIS interativo para visualização de dados geográficos da região de GARCA, desenvolvido com tecnologias web modernas.
 
